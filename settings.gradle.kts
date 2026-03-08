@@ -18,3 +18,8 @@ dependencyResolutionManagement {
 
 rootProject.name = "android-sdui"
 include(":app")
+include(":core")
+include(":core:sdui-runtime")
+include(":core:sdui-core")
+include(":core:designsystem")
+include(":feature")

@@ -1,11 +1,11 @@
-package com.douglassantana.android_sdui.sduiCore.registry
+package com.douglassantana.sdui_core.registry
 
 import android.util.Log
-import com.douglassantana.android_sdui.sduiCore.Node
-import com.douglassantana.android_sdui.sduiCore.UIComponent
-import com.douglassantana.android_sdui.sduiCore.UnknownComponent
-import com.douglassantana.android_sdui.sduiCore.context.SDUIContext
-import com.douglassantana.android_sdui.sduiCore.factory.ComponentFactory
+import com.douglassantana.sdui_core.Node
+import com.douglassantana.sdui_core.UIComponent
+import com.douglassantana.sdui_core.UnknownComponent
+import com.douglassantana.sdui_core.context.SDUIContext
+import com.douglassantana.sdui_core.factory.ComponentFactory
 import javax.inject.Inject
 
 /**

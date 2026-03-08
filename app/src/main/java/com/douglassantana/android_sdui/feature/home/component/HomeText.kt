@@ -1,13 +1,13 @@
 package com.douglassantana.android_sdui.feature.home.component
 
-import com.douglassantana.android_sdui.sduiCore.UIComponent
+import com.douglassantana.sdui_core.UIComponent
 
 /**
  * Componente SDUI que representa um texto simples na tela.
  *
- * Criado por [com.douglassantana.android_sdui.feature.home.factory.HomeTextFactory]
- * a partir de um [com.douglassantana.android_sdui.sduiCore.Node] do tipo `"text"`.
- * Renderizado por [com.douglassantana.android_sdui.feature.home.renderer.HomeTextRenderer].
+ * Criado por [HomeTextFactory]
+ * a partir de um [Node] do tipo `"text"`.
+ * Renderizado por [HomeTextRenderer].
  *
  * @property value O conteúdo textual a ser exibido. Lido da prop `"text"` do Node.
  * @property children Filhos aninhados, processados e renderizados recursivamente.
@@ -16,9 +16,9 @@ import com.douglassantana.android_sdui.sduiCore.UIComponent
  *
  * SDUI component that represents a simple text on screen.
  *
- * Created by [com.douglassantana.android_sdui.feature.home.factory.HomeTextFactory]
- * from a [com.douglassantana.android_sdui.sduiCore.Node] of type `"text"`.
- * Rendered by [com.douglassantana.android_sdui.feature.home.renderer.HomeTextRenderer].
+ * Created by [HomeTextFactory]
+ * from a [Node] of type `"text"`.
+ * Rendered by [HomeTextRenderer].
  *
  * @property value The text content to be displayed. Read from the Node's `"text"` prop.
  * @property children Nested children, processed and rendered recursively.

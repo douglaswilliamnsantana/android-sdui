@@ -1,9 +1,9 @@
-package com.douglassantana.android_sdui.sduiRuntime.renderer
+package com.douglassantana.sdui_runtime.renderer
 
 import android.util.Log
 import androidx.compose.runtime.Composable
-import com.douglassantana.android_sdui.sduiCore.UIComponent
-import com.douglassantana.android_sdui.sduiRuntime.compose.ComponentRenderer
+import com.douglassantana.sdui_core.UIComponent
+import com.douglassantana.sdui_runtime.compose.ComponentRenderer
 import javax.inject.Inject
 import kotlin.reflect.KClass
 

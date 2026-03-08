@@ -1,15 +1,15 @@
-package com.douglassantana.android_sdui.sduiCore
+package com.douglassantana.sdui_core
 
 /**
  * Interface base para todos os componentes de UI do sistema SDUI.
  *
  * Um [UIComponent] é o resultado da transformação de um [Node] por uma
- * [com.douglassantana.android_sdui.sduiCore.factory.ComponentFactory]. Representa
+ * [ComponentFactory]. Representa
  * um componente já tipado e pronto para ser renderizado pelo
- * [com.douglassantana.android_sdui.sduiRuntime.renderer.RendererRegistry].
+ * [RendererRegistry].
  *
  * A propriedade [children] permite que componentes sejam organizados em árvore.
- * O [com.douglassantana.android_sdui.sduiRuntime.renderer.RendererRegistry] renderiza
+ * O [RendererRegistry] renderiza
  * os filhos automaticamente após renderizar o componente pai.
  *
  * ---
@@ -17,12 +17,12 @@ package com.douglassantana.android_sdui.sduiCore
  * Base interface for all UI components in the SDUI system.
  *
  * A [UIComponent] is the result of transforming a [Node] through a
- * [com.douglassantana.android_sdui.sduiCore.factory.ComponentFactory]. It represents
+ * [ComponentFactory]. It represents
  * a typed component ready to be rendered by the
- * [com.douglassantana.android_sdui.sduiRuntime.renderer.RendererRegistry].
+ * [RendererRegistry].
  *
  * The [children] property allows components to be organized as a tree.
- * The [com.douglassantana.android_sdui.sduiRuntime.renderer.RendererRegistry] renders
+ * The [RendererRegistry] renders
  * children automatically after rendering the parent component.
  */
 interface UIComponent {

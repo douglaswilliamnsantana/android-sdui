@@ -1,33 +1,33 @@
-package com.douglassantana.android_sdui.sduiCore.factory
+package com.douglassantana.sdui_core.factory
 
-import com.douglassantana.android_sdui.sduiCore.Node
-import com.douglassantana.android_sdui.sduiCore.UIComponent
-import com.douglassantana.android_sdui.sduiCore.context.SDUIContext
+import com.douglassantana.sdui_core.Node
+import com.douglassantana.sdui_core.UIComponent
+import com.douglassantana.sdui_core.context.SDUIContext
 
 /**
  * Contrato para criação de [UIComponent] a partir de um [Node].
  *
  * Cada implementação é responsável por um único tipo de componente, identificado por [type].
- * O [com.douglassantana.android_sdui.sduiCore.registry.ComponentRegistry] usa esse valor
+ * O [ComponentRegistry] usa esse valor
  * para rotear a criação ao factory correto.
  *
  * As implementações devem ser registradas no módulo Hilt com `@Binds @IntoSet` para que
- * sejam descobertas automaticamente pelo [com.douglassantana.android_sdui.sduiCore.registry.ComponentRegistry].
+ * sejam descobertas automaticamente pelo [ComponentRegistry].
  *
- * @see com.douglassantana.android_sdui.feature.home.factory.HomeTextFactory
+ * @see HomeTextFactory
  *
  * ---
  *
  * Contract for creating a [UIComponent] from a [Node].
  *
  * Each implementation handles a single component type, identified by [type].
- * The [com.douglassantana.android_sdui.sduiCore.registry.ComponentRegistry] uses this value
+ * The [ComponentRegistry] uses this value
  * to route creation to the correct factory.
  *
  * Implementations must be registered in the Hilt module with `@Binds @IntoSet` so they are
- * automatically discovered by the [com.douglassantana.android_sdui.sduiCore.registry.ComponentRegistry].
+ * automatically discovered by the [ComponentRegistry].
  *
- * @see com.douglassantana.android_sdui.feature.home.factory.HomeTextFactory
+ * @see HomeTextFactory
  */
 interface ComponentFactory {
     /**
@@ -44,7 +44,7 @@ interface ComponentFactory {
      *
      * @param node O nó recebido do servidor com tipo, props e filhos brutos.
      * @param context Contexto SDUI com informações de ambiente (locale, actionHandler, extras).
-     * @param children Filhos já resolvidos recursivamente pelo [com.douglassantana.android_sdui.sduiCore.registry.ComponentRegistry].
+     * @param children Filhos já resolvidos recursivamente pelo [ComponentRegistry].
      *
      * ---
      *
@@ -52,7 +52,7 @@ interface ComponentFactory {
      *
      * @param node The node received from the server with type, props and raw children.
      * @param context SDUI context carrying environment information (locale, actionHandler, extras).
-     * @param children Children already recursively resolved by [com.douglassantana.android_sdui.sduiCore.registry.ComponentRegistry].
+     * @param children Children already recursively resolved by [ComponentRegistry].
      */
     fun create(
         node: Node,

@@ -1,4 +1,4 @@
-package com.douglassantana.android_sdui.sduiCore.action
+package com.douglassantana.sdui_core.action
 
 /**
  * Representa uma ação de UI disparada por um componente SDUI.
@@ -7,10 +7,10 @@ package com.douglassantana.android_sdui.sduiCore.action
  * permitindo tratamento exaustivo com `when`. Novas ações devem ser adicionadas aqui e
  * tratadas na implementação de [ActionHandler].
  *
- * Uso típico: uma factory lê props do [com.douglassantana.android_sdui.sduiCore.Node]
+ * Uso típico: uma factory lê props do [Node]
  * (ex: `"navigate" to "/home"`) e cria a ação correspondente no [UIComponent].
  * O componente, ao ser interagido pelo usuário, chama
- * [com.douglassantana.android_sdui.sduiCore.context.SDUIContext.actionHandler]?.handle(action).
+ * [SDUIContext.actionHandler]?.handle(action).
  *
  * ---
  *
@@ -23,7 +23,7 @@ package com.douglassantana.android_sdui.sduiCore.action
  * Typical usage: a factory reads props from a [com.douglassantana.android_sdui.sduiCore.Node]
  * (e.g. `"navigate" to "/home"`) and creates the corresponding action in the [UIComponent].
  * When the user interacts with the component, it calls
- * [com.douglassantana.android_sdui.sduiCore.context.SDUIContext.actionHandler]?.handle(action).
+ * [SDUIContext.actionHandler]?.handle(action).
  */
 sealed interface UIAction {
     data class Navigate(val route: String) : UIAction

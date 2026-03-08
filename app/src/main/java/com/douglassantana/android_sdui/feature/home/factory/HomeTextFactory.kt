@@ -1,10 +1,10 @@
 package com.douglassantana.android_sdui.feature.home.factory
 
 import com.douglassantana.android_sdui.feature.home.component.HomeText
-import com.douglassantana.android_sdui.sduiCore.Node
-import com.douglassantana.android_sdui.sduiCore.UIComponent
-import com.douglassantana.android_sdui.sduiCore.context.SDUIContext
-import com.douglassantana.android_sdui.sduiCore.factory.ComponentFactory
+import com.douglassantana.sdui_core.Node
+import com.douglassantana.sdui_core.UIComponent
+import com.douglassantana.sdui_core.context.SDUIContext
+import com.douglassantana.sdui_core.factory.ComponentFactory
 import javax.inject.Inject
 
 /**
@@ -15,7 +15,7 @@ import javax.inject.Inject
  * Os filhos resolvidos pelo [com.douglassantana.android_sdui.sduiCore.registry.ComponentRegistry]
  * são repassados diretamente ao [HomeText].
  *
- * Registrada no grafo Hilt via [com.douglassantana.android_sdui.feature.home.di.HomeSDUIModule].
+ * Registrada no grafo Hilt via [HomeSDUIModule].
  *
  * ---
  *

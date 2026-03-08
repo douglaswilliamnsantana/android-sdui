@@ -1,6 +1,6 @@
-package com.douglassantana.android_sdui.sduiCore.context
+package com.douglassantana.sdui_core.context
 
-import com.douglassantana.android_sdui.sduiCore.action.ActionHandler
+import com.douglassantana.sdui_core.action.ActionHandler
 import java.util.Locale
 
 /**
@@ -10,7 +10,7 @@ import java.util.Locale
  * podem precisar para instanciar seus componentes corretamente, sem depender de singletons
  * ou variáveis globais.
  *
- * @property actionHandler Handler opcional para despachar [com.douglassantana.android_sdui.sduiCore.action.UIAction].
+ * @property actionHandler Handler opcional para despachar [UIAction].
  *   Deve ser fornecido pela camada de aplicação (Activity/ViewModel). Se nulo, ações são ignoradas.
  * @property locale Locale atual do dispositivo. Útil para factories que precisam adaptar
  *   conteúdo a idiomas ou formatos regionais. Padrão: [Locale.getDefault].

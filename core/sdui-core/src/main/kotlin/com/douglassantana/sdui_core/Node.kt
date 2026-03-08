@@ -1,4 +1,4 @@
-package com.douglassantana.android_sdui.sduiCore
+package com.douglassantana.sdui_core
 
 /**
  * Representa o contrato de dados recebido do servidor para um componente de UI.
@@ -9,10 +9,10 @@ package com.douglassantana.android_sdui.sduiCore
  * seus filhos aninhados via [children], permitindo árvores de componentes.
  *
  * @property type Identificador do tipo do componente. Deve corresponder ao valor
- *   retornado por [com.douglassantana.android_sdui.sduiCore.factory.ComponentFactory.type].
+ *   retornado por [ComponentFactory.type].
  * @property props Mapa de propriedades arbitrárias do componente (ex: texto, cor, rota).
  * @property children Lista de nós filhos. Processados recursivamente pelo
- *   [com.douglassantana.android_sdui.sduiCore.registry.ComponentRegistry].
+ *   [ComponentRegistry].
  *
  * ---
  *
@@ -24,10 +24,10 @@ package com.douglassantana.android_sdui.sduiCore
  * its nested children via [children], allowing component trees.
  *
  * @property type Component type identifier. Must match the value returned by
- *   [com.douglassantana.android_sdui.sduiCore.factory.ComponentFactory.type].
+ *   [ComponentFactory.type].
  * @property props Map of arbitrary component properties (e.g. text, color, route).
  * @property children List of child nodes. Processed recursively by
- *   [com.douglassantana.android_sdui.sduiCore.registry.ComponentRegistry].
+ *   [ComponentRegistry].
  */
 data class Node(
     val type: String,

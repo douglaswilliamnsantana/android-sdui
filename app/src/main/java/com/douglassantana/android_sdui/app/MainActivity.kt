@@ -5,10 +5,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.remember
 import com.douglassantana.android_sdui.designsystem.theme.AndroidSduiTheme
-import com.douglassantana.android_sdui.sduiCore.Node
-import com.douglassantana.android_sdui.sduiCore.context.SDUIContext
-import com.douglassantana.android_sdui.sduiCore.registry.ComponentRegistry
-import com.douglassantana.android_sdui.sduiRuntime.renderer.RendererRegistry
+import com.douglassantana.sdui_core.Node
+import com.douglassantana.sdui_core.context.SDUIContext
+import com.douglassantana.sdui_core.registry.ComponentRegistry
+import com.douglassantana.sdui_runtime.renderer.RendererRegistry
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

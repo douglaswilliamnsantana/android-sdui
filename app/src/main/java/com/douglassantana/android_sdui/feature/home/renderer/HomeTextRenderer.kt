@@ -3,7 +3,7 @@ package com.douglassantana.android_sdui.feature.home.renderer
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import com.douglassantana.android_sdui.feature.home.component.HomeText
-import com.douglassantana.android_sdui.sduiRuntime.compose.ComponentRenderer
+import com.douglassantana.sdui_runtime.compose.ComponentRenderer
 import javax.inject.Inject
 
 /**
@@ -31,7 +31,7 @@ import javax.inject.Inject
  * Children rendering is handled automatically by [RendererRegistry] after
  * [Render] is called, so there is no need to handle them here.
  *
- * Registered in the Hilt graph via [com.douglassantana.android_sdui.feature.home.di.HomeSDUIModule].
+ * Registered in the Hilt graph via [cHomeSDUIModule].
  */
 class HomeTextRenderer @Inject constructor() :
     ComponentRenderer<HomeText> {

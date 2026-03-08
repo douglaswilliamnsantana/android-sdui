@@ -1,10 +1,10 @@
-package com.douglassantana.android_sdui.sduiCore.action
+package com.douglassantana.sdui_core.action
 
 /**
  * Contrato para tratamento de ações disparadas por componentes SDUI.
  *
  * Implementações concretas devem ser fornecidas pela camada de aplicação (ex: Activity ou
- * ViewModel) e injetadas no [com.douglassantana.android_sdui.sduiCore.context.SDUIContext].
+ * ViewModel) e injetadas no [SDUIContext].
  * Dessa forma, o core SDUI permanece desacoplado de navegação, analytics ou qualquer
  * efeito colateral específico da plataforma.
  *
@@ -23,7 +23,7 @@ package com.douglassantana.android_sdui.sduiCore.action
  * Contract for handling actions dispatched by SDUI components.
  *
  * Concrete implementations should be provided by the application layer (e.g. Activity or
- * ViewModel) and injected into [com.douglassantana.android_sdui.sduiCore.context.SDUIContext].
+ * ViewModel) and injected into [SDUIContext].
  * This keeps the SDUI core decoupled from navigation, analytics, or any
  * platform-specific side effects.
  *
