@@ -47,7 +47,7 @@ RendererRegistry  ← resolve o ComponentRenderer pelo tipo do UIComponent
 
 ## Visão da arquitetura
 
-![Arquitetura Geral](docs/images/diagram_architecture.png)
+![Arquitetura Geral](/docs/images/diagram_architecture.png)
 
 ---
 
