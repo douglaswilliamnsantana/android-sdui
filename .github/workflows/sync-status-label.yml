@@ -1,9 +1,10 @@
+cat > .github/workflows/sync-status-label.yml << 'EOF'
 name: Sync Status Label (Projects V2)
 
 on:
-  project_v2_item:
-    types: [edited, converted, reordered, archived, restored, deleted]
   workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
 
 jobs:
   sync:
@@ -34,7 +35,6 @@ jobs:
               "Done":         "status: done"
             };
 
-            // Query correta para projetos pessoais (user project)
             const query = `
               query($login: String!, $projectNumber: Int!) {
                 user(login: $login) {
@@ -59,9 +59,7 @@ jobs:
                             number
                             repository {
                               name
-                              owner {
-                                login
-                              }
+                              owner { login }
                             }
                             labels(first: 10) {
                               nodes { name }
@@ -86,8 +84,6 @@ jobs:
             for (const item of items) {
               const issue = item.content;
               if (!issue?.number) continue;
-
-              // Garante que é do repositório correto
               if (issue.repository.name !== "android-sdui") continue;
 
               const statusField = item.fieldValues.nodes.find(
@@ -127,8 +123,4 @@ jobs:
                   issue_number: issue.number,
                   labels: [newLabel]
                 });
-                console.log(`✅ Issue #${issue.number} → ${newLabel}`);
-              } else {
-                console.log(`✔️ Issue #${issue.number} já tem a label correta`);
-              }
-            }
+                console.log
