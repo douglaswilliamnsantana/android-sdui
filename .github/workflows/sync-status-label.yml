@@ -4,7 +4,8 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '*/5 * * * *'
-
+  issues:
+    types: [edited, labeled, unlabeled, assigned, unassigned]
 jobs:
   sync:
     runs-on: ubuntu-latest
