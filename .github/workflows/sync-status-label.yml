@@ -1,0 +1,107 @@
+name: Sync Status Label (Projects V2)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/15 * * * *" # roda a cada 15 minutos
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+
+    steps:
+      - name: Sync status labels from Project V2
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const statusLabels = [
+              "status: backlog",
+              "status: ready",
+              "status: in-progress",
+              "status: in-review",
+              "status: done"
+            ];
+
+            const statusToLabel = {
+              "Backlog":     "status: backlog",
+              "Ready":       "status: ready",
+              "In Progress": "status: in-progress",
+              "In Review":   "status: in-review",
+              "Done":        "status: done"
+            };
+
+            // Busca itens do projeto via GraphQL
+            const query = `
+              query {
+                user(login: "douglaswilliamnsantana") {
+                  projectV2(number: 4) {
+                    items(first: 100) {
+                      nodes {
+                        fieldValues(first: 10) {
+                          nodes {
+                            ... on ProjectV2ItemFieldSingleSelectValue {
+                              name
+                              field { ... on ProjectV2SingleSelectField { name } }
+                            }
+                          }
+                        }
+                        content {
+                          ... on Issue {
+                            number
+                            labels(first: 10) {
+                              nodes { name }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+
+            const result = await github.graphql(query);
+            const items = result.user.projectV2.items.nodes;
+
+            for (const item of items) {
+              const issue = item.content;
+              if (!issue?.number) continue;
+
+              // Busca o campo Status
+              const statusField = item.fieldValues.nodes.find(
+                f => f?.field?.name === "Status"
+              );
+              if (!statusField?.name) continue;
+
+              const newLabel = statusToLabel[statusField.name];
+              if (!newLabel) continue;
+
+              const currentLabels = issue.labels.nodes.map(l => l.name);
+
+              // Remove labels de status antigas
+              for (const label of statusLabels) {
+                if (currentLabels.includes(label) && label !== newLabel) {
+                  await github.rest.issues.removeLabel({
+                    owner: "douglaswilliamnsantana",
+                    repo: "android-sdui",
+                    issue_number: issue.number,
+                    name: label
+                  }).catch(() => {});
+                }
+              }
+
+              // Adiciona nova label
+              if (!currentLabels.includes(newLabel)) {
+                await github.rest.issues.addLabels({
+                  owner: "douglaswilliamnsantana",
+                  repo: "android-sdui",
+                  issue_number: issue.number,
+                  labels: [newLabel]
+                });
+                console.log(`✅ Issue #${issue.number} → ${newLabel}`);
+              }
+            }
