@@ -1,4 +1,3 @@
-cat > .github/workflows/sync-status-label.yml << 'EOF'
 name: Sync Status Label (Projects V2)
 
 on:
@@ -133,5 +132,3 @@ jobs:
                 console.log(`✔️ Issue #${issue.number} já tem a label correta`);
               }
             }
-EOF
-```
