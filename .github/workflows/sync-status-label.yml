@@ -1,9 +1,10 @@
+cat > .github/workflows/sync-status-label.yml << 'EOF'
 name: Sync Status Label (Projects V2)
 
 on:
+  project_v2_item:
+    types: [edited, converted, reordered, archived, restored, deleted]
   workflow_dispatch:
-  schedule:
-    - cron: '*/15 * * * *' # roda a cada 15 minutos
 
 jobs:
   sync:
@@ -16,7 +17,7 @@ jobs:
       - name: Sync status labels from Project V2
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.android-sdui-token }}
           script: |
             const statusLabels = [
               "status: backlog",
@@ -27,31 +28,42 @@ jobs:
             ];
 
             const statusToLabel = {
-              "Backlog":     "status: backlog",
-              "Ready":       "status: ready",
-              "In Progress": "status: in-progress",
-              "In Review":   "status: in-review",
-              "Done":        "status: done"
+              "Backlog":      "status: backlog",
+              "Ready":        "status: ready",
+              "In Progress":  "status: in-progress",
+              "In Review":    "status: in-review",
+              "Done":         "status: done"
             };
 
-            // Busca itens do projeto via GraphQL
+            // Query correta para projetos pessoais (user project)
             const query = `
-              query {
-                user(login: "douglaswilliamnsantana") {
-                  projectV2(number: 4) {
+              query($login: String!, $projectNumber: Int!) {
+                user(login: $login) {
+                  projectV2(number: $projectNumber) {
+                    id
                     items(first: 100) {
                       nodes {
                         fieldValues(first: 10) {
                           nodes {
                             ... on ProjectV2ItemFieldSingleSelectValue {
                               name
-                              field { ... on ProjectV2SingleSelectField { name } }
+                              field {
+                                ... on ProjectV2SingleSelectField {
+                                  name
+                                }
+                              }
                             }
                           }
                         }
                         content {
                           ... on Issue {
                             number
+                            repository {
+                              name
+                              owner {
+                                login
+                              }
+                            }
                             labels(first: 10) {
                               nodes { name }
                             }
@@ -64,25 +76,40 @@ jobs:
               }
             `;
 
-            const result = await github.graphql(query);
+            const result = await github.graphql(query, {
+              login: "douglaswilliamnsantana",
+              projectNumber: 4
+            });
+
             const items = result.user.projectV2.items.nodes;
+            console.log(`📦 Total items: ${items.length}`);
 
             for (const item of items) {
               const issue = item.content;
               if (!issue?.number) continue;
 
-              // Busca o campo Status
+              // Garante que é do repositório correto
+              if (issue.repository.name !== "android-sdui") continue;
+
               const statusField = item.fieldValues.nodes.find(
                 f => f?.field?.name === "Status"
               );
-              if (!statusField?.name) continue;
+
+              if (!statusField?.name) {
+                console.log(`⚠️ Issue #${issue.number} sem status definido`);
+                continue;
+              }
+
+              console.log(`🔍 Issue #${issue.number} → Status: ${statusField.name}`);
 
               const newLabel = statusToLabel[statusField.name];
-              if (!newLabel) continue;
+              if (!newLabel) {
+                console.log(`⚠️ Status "${statusField.name}" não mapeado`);
+                continue;
+              }
 
               const currentLabels = issue.labels.nodes.map(l => l.name);
 
-              // Remove labels de status antigas
               for (const label of statusLabels) {
                 if (currentLabels.includes(label) && label !== newLabel) {
                   await github.rest.issues.removeLabel({
@@ -90,11 +117,10 @@ jobs:
                     repo: "android-sdui",
                     issue_number: issue.number,
                     name: label
-                  }).catch(() => {});
+                  }).catch(e => console.log(`⚠️ Erro ao remover label: ${e.message}`));
                 }
               }
 
-              // Adiciona nova label
               if (!currentLabels.includes(newLabel)) {
                 await github.rest.issues.addLabels({
                   owner: "douglaswilliamnsantana",
@@ -103,5 +129,9 @@ jobs:
                   labels: [newLabel]
                 });
                 console.log(`✅ Issue #${issue.number} → ${newLabel}`);
+              } else {
+                console.log(`✔️ Issue #${issue.number} já tem a label correta`);
               }
             }
+EOF
+```
