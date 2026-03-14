@@ -1,4 +1,3 @@
-cat > .github/workflows/sync-status-label.yml << 'EOF'
 name: Sync Status Label (Projects V2)
 
 on:
@@ -28,11 +27,11 @@ jobs:
             ];
 
             const statusToLabel = {
-              "Backlog":      "status: backlog",
-              "Ready":        "status: ready",
-              "In Progress":  "status: in-progress",
-              "In Review":    "status: in-review",
-              "Done":         "status: done"
+              "Backlog":     "status: backlog",
+              "Ready":       "status: ready",
+              "In Progress": "status: in-progress",
+              "In Review":   "status: in-review",
+              "Done":        "status: done"
             };
 
             const query = `
@@ -123,4 +122,8 @@ jobs:
                   issue_number: issue.number,
                   labels: [newLabel]
                 });
-                console.log
+                console.log(`✅ Issue #${issue.number} → ${newLabel}`);
+              } else {
+                console.log(`✔️ Issue #${issue.number} já tem a label correta`);
+              }
+            }
