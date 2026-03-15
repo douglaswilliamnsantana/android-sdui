@@ -2,14 +2,10 @@ plugins {
     id("convention.android.application")
 }
 
-android {
-    namespace = "com.douglassantana.android_sdui"
-    defaultConfig {
-        applicationId = "com.douglassantana.android_sdui"
-    }
-}
+android(namespace = "com.douglassantana.android_sdui")
 
 dependencies {
+    implementation(project(":core:designsystem"))
     implementation(project(":core:sdui-core"))
     implementation(project(":core:sdui-runtime"))
 

@@ -2,6 +2,9 @@ plugins {
     id("convention.android.library.compose")
 }
 
-android {
-    namespace = "com.douglassantana.designsystem"
+androidCompose(namespace = "com.douglassantana.designsystem")
+
+dependencies {
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.javax.inject)
 }

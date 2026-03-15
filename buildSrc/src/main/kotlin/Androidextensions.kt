@@ -1,4 +1,5 @@
 import com.android.build.api.dsl.LibraryExtension
+import com.android.build.gradle.internal.dsl.BaseAppModuleExtension
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.configure
@@ -6,16 +7,23 @@ import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
 
 /**
- * Configura o namespace do módulo Android.
+ * Configura o namespace do módulo Android Library.
  * Uso para módulos sem Compose:
  * ```kotlin
  * plugins { id("convention.android.library") }
- * android("com.douglassantana.meu_modulo")
+ * android(namespace = "com.douglassantana.meu_modulo")
  * ```
  */
 fun Project.android(namespace: String) {
-    extensions.configure<LibraryExtension> {
-        this.namespace = namespace
+    pluginManager.withPlugin("com.android.library") {
+        extensions.configure<LibraryExtension> {
+            this.namespace = namespace
+        }
+    }
+    pluginManager.withPlugin("com.android.application") {
+        extensions.configure<BaseAppModuleExtension> {
+            this.namespace = namespace
+        }
     }
 }
 
@@ -31,19 +39,24 @@ fun Project.android(namespace: String) {
  * Uso:
  * ```kotlin
  * plugins { id("convention.android.library.compose") }
- * androidCompose("com.douglassantana.meu_modulo")
+ * androidCompose(namespace = "com.douglassantana.meu_modulo")
  * ```
  */
 fun Project.androidCompose(namespace: String) {
-    extensions.configure<LibraryExtension> {
-        this.namespace = namespace
-        buildFeatures {
-            compose = true
+    pluginManager.withPlugin("com.android.library") {
+        extensions.configure<LibraryExtension> {
+            this.namespace = namespace
+            buildFeatures { compose = true }
+        }
+    }
+    pluginManager.withPlugin("com.android.application") {
+        extensions.configure<BaseAppModuleExtension> {
+            this.namespace = namespace
+            buildFeatures { compose = true }
         }
     }
 
     val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
-
     dependencies {
         add("implementation", platform(libs.findLibrary("androidx-compose-bom").get()))
         add("implementation", libs.findLibrary("androidx-compose-ui").get())
