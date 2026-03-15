@@ -31,6 +31,7 @@ jobs:
               "Backlog":     "status: backlog",
               "Ready":       "status: ready",
               "In Progress": "status: in-progress",
+              "In progress": "status: in-progress",
               "In Review":   "status: in-review",
               "Done":        "status: done"
             };
