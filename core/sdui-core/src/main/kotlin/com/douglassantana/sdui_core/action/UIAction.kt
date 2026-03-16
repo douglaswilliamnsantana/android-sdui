@@ -20,7 +20,7 @@ package com.douglassantana.sdui_core.action
  * enabling exhaustive handling with `when`. New actions should be added here and
  * handled in the [ActionHandler] implementation.
  *
- * Typical usage: a factory reads props from a [com.douglassantana.android_sdui.sduiCore.Node]
+ * Typical usage: a factory reads props from a [Node]
  * (e.g. `"navigate" to "/home"`) and creates the corresponding action in the [UIComponent].
  * When the user interacts with the component, it calls
  * [SDUIContext.actionHandler]?.handle(action).

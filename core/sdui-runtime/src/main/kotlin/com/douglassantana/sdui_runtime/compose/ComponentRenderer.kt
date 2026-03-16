@@ -15,7 +15,6 @@ import kotlin.reflect.KClass
  * sejam descobertas automaticamente pelo [RendererRegistry].
  *
  * @param T O tipo concreto de [UIComponent] que este renderer sabe desenhar.
- * @see HomeTextRenderer
  *
  * ---
  *
@@ -29,7 +28,6 @@ import kotlin.reflect.KClass
  * automatically discovered by the [RendererRegistry].
  *
  * @param T The concrete [UIComponent] type this renderer knows how to draw.
- * @see HomeTextRenderer
  */
 interface ComponentRenderer<T : UIComponent> {
 
