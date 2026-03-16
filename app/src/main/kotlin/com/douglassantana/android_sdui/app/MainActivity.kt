@@ -3,10 +3,14 @@ package com.douglassantana.android_sdui.app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.remember
 import com.douglassantana.designsystem.theme.AndroidSduiTheme
+import com.douglassantana.domain.mapper.NodeMapper
+import com.douglassantana.domain.model.NodeDto
 import com.douglassantana.sdui_core.Node
 import com.douglassantana.sdui_core.context.SDUIContext
+import com.douglassantana.sdui_core.factory.SduiJson
 import com.douglassantana.sdui_core.registry.ComponentRegistry
 import com.douglassantana.sdui_runtime.renderer.RendererRegistry
 import dagger.hilt.android.AndroidEntryPoint
@@ -47,21 +51,45 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var rendererRegistry: RendererRegistry
 
+    private val testJson = """
+        {
+          "type": "text",
+          "props": {
+            "text": "Hello SDUI",
+            "style": {
+              "padding": {
+                "start": 24,
+                "end": 24,
+                "top": 32,
+                "bottom": 0
+              },
+              "color": "#1A202C",
+              "fontSize": 22,
+              "fontWeight": "semi-bold"
+            }
+          }
+        }
+    """.trimIndent()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
             val component = remember {
-                val node = Node(type = "text", props = mapOf("text" to "SDUI com Hilt"))
+                // 1. Desserializa JSON → NodeDto
+                val nodeDto = SduiJson.decodeFromString<NodeDto>(testJson)
 
-                componentRegistry.create(
-                    node,
-                    context = SDUIContext()
-                )
+                // 2. Converte NodeDto → Node
+                val node = NodeMapper.toNode(nodeDto)
+
+                // 3. Cria UIComponent via ComponentRegistry
+                componentRegistry.create(node, SDUIContext())
             }
 
             AndroidSduiTheme {
-                rendererRegistry.Render(component)
+                Surface {
+                    rendererRegistry.Render(component)
+                }
             }
         }
     }

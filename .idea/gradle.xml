@@ -24,6 +24,8 @@
             <option value="$PROJECT_DIR$/buildSrc" />
             <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/core/designsystem" />
+            <option value="$PROJECT_DIR$/core/domain" />
+            <option value="$PROJECT_DIR$/core/sdui-components" />
             <option value="$PROJECT_DIR$/core/sdui-core" />
             <option value="$PROJECT_DIR$/core/sdui-runtime" />
             <option value="$PROJECT_DIR$/feature" />

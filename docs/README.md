@@ -8,9 +8,11 @@
 
 | Página | Descrição |
 |---|---|
-| [sdui-core](sdui-core.md) | Contratos, modelos de dados, `ComponentRegistry`, `SDUIContext`, `UIAction` |
+| [sdui-core](sdui-core.md) | Contratos, `Node`, `UIComponent`, `ComponentRegistry`, `SDUIContext`, `SduiJson` |
 | [sdui-runtime](sdui-runtime.md) | `ComponentRenderer`, `RendererRegistry`, renderização recursiva em Compose |
-| [app](app.md) | Entry point, feature Home, Design System, fluxo completo |
+| [sdui-components](sdui-components.md) | Implementações de componentes: `SduiText` e guia para novos componentes |
+| [domain](domain.md) | `NodeDto`, `NodeMapper`, `IStyle`, `IMargin` |
+| [app](app.md) | Entry point, `SduiBindingsModule`, fluxo completo |
 | [buildSrc](buildsrc.md) | Convention plugins, `AppConfig`, extensões `android()` / `androidCompose()` |
 
 ---
@@ -31,7 +33,6 @@
 | **Arquitetura Geral** — [ver página](architecture.md) | **Fluxo de Renderização** — [ver página](architecture.md) |
 | ![Diagrama de Classes](images/diagram_classes.png) | ![Fluxo de Injeção Hilt](images/diagram_hilt.png) |
 | **Diagrama de Classes** — [ver página](sdui-core.md) | **Fluxo Hilt** — [ver página](architecture.md) |
-
 
 ---
 

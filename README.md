@@ -14,19 +14,22 @@ O pipeline completo:
 Servidor (JSON)
       │
       ▼
-    Node          ← modelo de dados bruto: type, props, children
+   NodeDto        ← desserializado via kotlinx.serialization
       │
       ▼
-ComponentRegistry ← resolve a ComponentFactory pelo type do Node
+    Node           ← props mantidas como JsonObject (sem perda de tipo)
       │
       ▼
-  UIComponent     ← modelo tipado e pronto para renderização
+ComponentRegistry  ← resolve a ComponentFactory pelo type do Node
       │
       ▼
-RendererRegistry  ← resolve o ComponentRenderer pelo tipo do UIComponent
+  UIComponent      ← modelo tipado e pronto para renderização
       │
       ▼
-  Composable      ← UI desenhada na tela
+RendererRegistry   ← resolve o ComponentRenderer pelo tipo do UIComponent
+      │
+      ▼
+  Composable       ← UI desenhada na tela
 ```
 
 ---
@@ -38,7 +41,8 @@ RendererRegistry  ← resolve o ComponentRenderer pelo tipo do UIComponent
 | Linguagem | Kotlin 2.3.10 |
 | UI | Jetpack Compose + Material 3 |
 | DI | Hilt 2.59.2 (multibindings) |
-| Build | AGP 9.1.0 + Gradle 9.3.1 + KSP 2.3.6 |
+| Serialização | kotlinx.serialization 1.8.1 |
+| Build | AGP 9.1.0 + Gradle Kotlin DSL + KSP 2.3.6 |
 | Java target | 11 |
 | Min SDK | 31 |
 | Compile / Target SDK | 36 |
@@ -55,34 +59,42 @@ RendererRegistry  ← resolve o ComponentRenderer pelo tipo do UIComponent
 
 ```
 androidsdui/
-├── app/                        → módulo de aplicação (entry point)
-│   ├── app/                    → App.kt, MainActivity.kt
-│   ├── designsystem/           → tema, cores, tipografia
-│   └── feature/home/           → componente HomeText (factory + renderer + DI)
+├── app/                        → entry point da aplicação
+│   ├── App.kt                  → @HiltAndroidApp
+│   ├── MainActivity.kt         → monta e renderiza o componente raiz
+│   └── SduiBindingsModule.kt   → inicializa os sets vazios do Hilt multibinding
 │
 ├── core/
 │   ├── sdui-core/              → contratos e modelos agnósticos de UI
-│   └── sdui-runtime/           → renderização em Compose
+│   ├── sdui-runtime/           → renderização em Compose
+│   ├── sdui-components/        → implementações de componentes (SduiText, ...)
+│   ├── domain/                 → NodeDto, NodeMapper, IStyle, IMargin
+│   └── designsystem/           → tokens de design, cores, tipografia, tema
 │
-└── buildSrc/                   → convention plugins e extensões Gradle
+└── buildSrc/                   → convention plugins e configuração centralizada
 ```
 
 ### Dependências entre módulos
 
 ```
-         ┌─────────────┐
-         │     app     │
-         └──────┬──────┘
-        ┌───────┴────────┐
-        ▼                ▼
-  ┌──────────┐   ┌──────────────┐
-  │sdui-core │◄──│ sdui-runtime │
-  └──────────┘   └──────────────┘
+              ┌─────────────────────────────┐
+              │            app              │
+              └──────────────┬──────────────┘
+          ┌───────┬──────────┼──────────┬───────────┐
+          ▼       ▼          ▼          ▼           ▼
+     domain  designsystem sdui-core sdui-runtime sdui-components
+          │                  ▲          │               │
+          └──────────────────┘          ▼               ▼
+                                    sdui-core       sdui-core
+                                                    sdui-runtime
+                                                    domain
 ```
 
-`sdui-core` não conhece Compose — pode ser reutilizado em qualquer plataforma Kotlin.  
-`sdui-runtime` conhece Compose, mas não conhece as features.  
-`app` conhece tudo, e é onde os componentes concretos são registrados via Hilt.
+- `sdui-core` não conhece Compose — pode ser reutilizado em qualquer plataforma Kotlin.
+- `sdui-runtime` conhece Compose, mas não conhece as features.
+- `domain` contém os modelos de dados e o mapeamento JSON → Node.
+- `sdui-components` reúne as implementações concretas de componentes.
+- `app` integra tudo e registra os componentes via Hilt.
 
 ---
 
@@ -94,7 +106,7 @@ androidsdui/
 |---|---|
 | [sdui-core](docs/sdui-core.md) | Contratos, modelos de dados e registros de factories |
 | [sdui-runtime](docs/sdui-runtime.md) | Renderização Compose e registro de renderers |
-| [app](docs/app.md) | Entry point, feature Home e Design System |
+| [app](docs/app.md) | Entry point, SduiBindingsModule e fluxo completo |
 | [buildSrc](docs/buildsrc.md) | Convention plugins, AppConfig e extensões Gradle |
 | [Arquitetura geral](docs/architecture.md) | Fluxo completo e diagramas de todos os módulos |
 
@@ -102,43 +114,68 @@ androidsdui/
 
 ## Como adicionar um novo componente
 
-### 1. Criar o `UIComponent`
+### 1. Criar Props, Style e UIComponent
 
 ```kotlin
-data class HomeButton(
+// Props — desserializada diretamente do JSON
+@Serializable
+data class SduiButtonProps(
+    @SerialName("label") val label: String = "",
+    @SerialName("style") val style: SduiButtonStyle? = null,
+) : IProps
+
+// Style — herda IStyle para ter padding via contrato
+@Serializable
+data class SduiButtonStyle(
+    @SerialName("padding")  override val padding: IMargin = IMargin(),
+    @SerialName("color")    val color: String? = null,
+) : IStyle()
+
+// UIComponent — modelo tipado pronto para o renderer
+data class SduiButton(
     val label: String,
-    val action: UIAction? = null,
-    override val children: List<UIComponent> = emptyList()
+    val style: SduiButtonStyle = SduiButtonStyle(),
+    override val children: List<UIComponent> = emptyList(),
 ) : UIComponent
 ```
 
 ### 2. Criar a `ComponentFactory`
 
 ```kotlin
-class HomeButtonFactory @Inject constructor() : ComponentFactory {
+class SduiButtonFactory @Inject constructor() : ComponentFactory<SduiButtonProps> {
+
     override fun type() = "button"
 
-    override fun create(node: Node, context: SDUIContext, children: List<UIComponent>): UIComponent {
-        val route = node.props["navigate"] as? String
-        return HomeButton(
-            label = node.props["label"] as? String ?: "",
-            action = route?.let { UIAction.Navigate(it) },
-            children = children
-        )
-    }
+    // Uma linha — sem casts, sem parsing manual
+    override fun parseProps(node: Node): SduiButtonProps =
+        SduiJson.decodeFromJsonElement(node.props)
+
+    override fun create(
+        props: SduiButtonProps,
+        context: SDUIContext,
+        children: List<UIComponent>,
+    ) = SduiButton(
+        label    = props.label,
+        style    = props.style ?: SduiButtonStyle(),
+        children = children,
+    )
 }
 ```
 
 ### 3. Criar o `ComponentRenderer`
 
 ```kotlin
-class HomeButtonRenderer @Inject constructor() : ComponentRenderer<HomeButton> {
-    override val type = HomeButton::class
+class SduiButtonRenderer @Inject constructor() : ComponentRenderer<SduiButton> {
+
+    override val type = SduiButton::class
 
     @Composable
-    override fun Render(component: HomeButton) {
-        Button(onClick = { /* dispatch component.action */ }) {
-            Text(component.label)
+    override fun Render(component: SduiButton) {
+        Button(
+            onClick = { },
+            modifier = Modifier.marginResolved(component.style.padding),
+        ) {
+            Text(text = component.label)
         }
     }
 }
@@ -147,14 +184,50 @@ class HomeButtonRenderer @Inject constructor() : ComponentRenderer<HomeButton> {
 ### 4. Registrar no módulo Hilt
 
 ```kotlin
-@Binds @IntoSet
-abstract fun bindHomeButtonFactory(factory: HomeButtonFactory): ComponentFactory
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class SduiButtonModule {
 
-@Binds @IntoSet
-abstract fun bindHomeButtonRenderer(renderer: HomeButtonRenderer): ComponentRenderer<*>
+    @Binds @IntoSet
+    abstract fun bindFactory(factory: SduiButtonFactory): ComponentFactory<out IProps>
+
+    @Binds @IntoSet
+    abstract fun bindRenderer(renderer: SduiButtonRenderer): ComponentRenderer<*>
+}
 ```
 
 Pronto — sem alterar nenhuma outra classe existente.
+
+---
+
+## Formato do JSON
+
+```json
+{
+  "type": "text",
+  "props": {
+    "text": "Hello SDUI",
+    "style": {
+      "padding": {
+        "start": 24,
+        "end": 24,
+        "top": 32,
+        "bottom": 0
+      },
+      "color": "#1A202C",
+      "fontSize": 22,
+      "fontWeight": "semi-bold"
+    }
+  },
+  "components": []
+}
+```
+
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `type` | `String` | Identificador do componente. Deve corresponder ao retorno de `ComponentFactory.type()` |
+| `props` | `Object` | Propriedades do componente. Desserializadas diretamente na Props class via `decodeFromJsonElement` |
+| `components` | `Array` | Filhos do componente. Processados recursivamente pelo `ComponentRegistry` |
 
 ---
 
@@ -174,13 +247,35 @@ W/RendererRegistry: No renderer registered for type 'UnknownComponent'. Nothing 
 O projeto usa `buildSrc` para centralizar toda a configuração de build. Cada módulo declara apenas o plugin e namespace:
 
 ```kotlin
-// módulo sem Compose
+// módulo sem Compose (inclui serialization plugin automaticamente)
 plugins { id("convention.android.library") }
 android("com.douglassantana.sdui_core")
 
-// módulo com Compose — dependências Compose injetadas automaticamente
+// módulo com Compose (inclui serialization + Compose plugins automaticamente)
 plugins { id("convention.android.library.compose") }
-androidCompose("com.douglassantana.sdui_runtime")
+androidCompose("com.douglassantana.sdui_components")
 ```
 
-Veja [buildSrc](docs/buildsrc.md) para detalhes completos.
+| Plugin | Inclui |
+|---|---|
+| `convention.android.library` | Android Library + Kotlin + Serialization |
+| `convention.android.library.compose` | Android Library + Kotlin + Compose + Serialization + KSP |
+| `convention.android.application` | Android Application + Kotlin + Compose + KSP + Hilt |
+
+---
+
+## SduiJson
+
+Instância compartilhada de `Json` disponível em `core:sdui-core`. Usada por todas as factories e pela desserialização inicial do JSON na `MainActivity`.
+
+```kotlin
+val SduiJson: Json = Json {
+    ignoreUnknownKeys = true
+    coerceInputValues = true
+}
+```
+
+Importar de:
+```kotlin
+import com.douglassantana.sdui_core.factory.SduiJson
+```

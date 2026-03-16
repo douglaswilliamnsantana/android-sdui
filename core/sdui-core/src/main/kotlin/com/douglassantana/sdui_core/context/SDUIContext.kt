@@ -25,7 +25,7 @@ import java.util.Locale
  * may need to instantiate their components correctly, without relying on singletons
  * or global variables.
  *
- * @property actionHandler Optional handler for dispatching [com.douglassantana.android_sdui.sduiCore.action.UIAction].
+ * @property actionHandler Optional handler for dispatching [UIAction].
  *   Should be provided by the application layer (Activity/ViewModel). If null, actions are ignored.
  * @property locale Current device locale. Useful for factories that need to adapt
  *   content to languages or regional formats. Default: [Locale.getDefault].
