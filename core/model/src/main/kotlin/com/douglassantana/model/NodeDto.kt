@@ -1,4 +1,4 @@
-package com.douglassantana.domain.model
+package com.douglassantana.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

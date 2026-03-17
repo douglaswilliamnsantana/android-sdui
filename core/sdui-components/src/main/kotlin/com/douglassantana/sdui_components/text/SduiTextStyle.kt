@@ -1,7 +1,7 @@
 package com.douglassantana.sdui_components.text
 
-import com.douglassantana.domain.style.IMargin
-import com.douglassantana.domain.style.IStyle
+import com.douglassantana.model.style.IMargin
+import com.douglassantana.model.style.IStyle
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

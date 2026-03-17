@@ -1,4 +1,4 @@
-package com.douglassantana.android_sdui
+package com.douglassantana.sdui_runtime.di
 
 import com.douglassantana.sdui_core.IProps
 import com.douglassantana.sdui_core.factory.ComponentFactory
