@@ -2,11 +2,10 @@ plugins {
     id("convention.android.library")
 }
 
-android(namespace = "com.douglassantana.domain")
+android(namespace = "com.douglassantana.model")
 
 dependencies {
     implementation(project(":core:sdui-core"))
-    implementation(project(":core:model"))
 
     implementation(libs.kotlinx.serialization.json)
 

@@ -1,6 +1,6 @@
 package com.douglassantana.domain.mapper
 
-import com.douglassantana.domain.model.NodeDto
+import com.douglassantana.model.NodeDto
 import com.douglassantana.sdui_core.Node
 import kotlinx.serialization.json.JsonObject
 
