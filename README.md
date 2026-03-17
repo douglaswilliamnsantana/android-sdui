@@ -1,6 +1,6 @@
 # Android SDUI
 
-> **Server Driven UI** engine para Android — componentes declarativos construídos a partir de dados do servidor, renderizados com Jetpack Compose e injetados via Hilt.
+> **Server Driven UI** engine para Android — a interface é definida pelo servidor em JSON, desserializada, mapeada para um modelo tipado e renderizada com Jetpack Compose via injeção Hilt.
 
 ---
 
@@ -34,6 +34,16 @@ RendererRegistry   ← resolve o ComponentRenderer pelo tipo do UIComponent
 
 ---
 
+## Mock Server
+
+Para desenvolvimento local, utilize o mock server oficial do projeto:
+
+**[android-sdui-mock-server](https://github.com/douglaswilliamnsantana/android-sdui-mock-server)**
+
+O servidor expõe os endpoints que o app consome via Ktor. O emulador acessa o host pela URL `http://10.0.2.2:3000`.
+
+---
+
 ## Stack
 
 | Camada | Tecnologia |
@@ -41,6 +51,7 @@ RendererRegistry   ← resolve o ComponentRenderer pelo tipo do UIComponent
 | Linguagem | Kotlin 2.3.10 |
 | UI | Jetpack Compose + Material 3 |
 | DI | Hilt 2.59.2 (multibindings) |
+| HTTP | Ktor 3.1.3 (OkHttp engine) |
 | Serialização | kotlinx.serialization 1.8.1 |
 | Build | AGP 9.1.0 + Gradle Kotlin DSL + KSP 2.3.6 |
 | Java target | 11 |
@@ -59,16 +70,19 @@ RendererRegistry   ← resolve o ComponentRenderer pelo tipo do UIComponent
 
 ```
 androidsdui/
-├── app/                        → entry point da aplicação
-│   ├── App.kt                  → @HiltAndroidApp
-│   ├── MainActivity.kt         → monta e renderiza o componente raiz
-│   └── SduiBindingsModule.kt   → inicializa os sets vazios do Hilt multibinding
+├── app/                        → entry point, MainActivity, App
+│
+├── feature/
+│   └── home/                   → HomeScreen + HomeViewModel
 │
 ├── core/
-│   ├── sdui-core/              → contratos e modelos agnósticos de UI
-│   ├── sdui-runtime/           → renderização em Compose
-│   ├── sdui-components/        → implementações de componentes (SduiText, ...)
-│   ├── domain/                 → NodeDto, NodeMapper, IStyle, IMargin
+│   ├── model/                  → NodeDto, IStyle, IMargin (DTOs puros)
+│   ├── domain/                 → SduiRepository (interface), FetchScreenUseCase, NodeMapper
+│   ├── data/                   → SduiRepositoryImpl, DataModule
+│   ├── network/                → HttpClient (Ktor), NetworkModule, baseUrl
+│   ├── sdui-core/              → contratos: Node, UIComponent, ComponentFactory, ComponentRegistry
+│   ├── sdui-runtime/           → RendererRegistry, ComponentRenderer, SduiBindingsModule
+│   ├── sdui-components/        → implementações: SduiText, SduiTextFactory, SduiTextRenderer
 │   └── designsystem/           → tokens de design, cores, tipografia, tema
 │
 └── buildSrc/                   → convention plugins e configuração centralizada
@@ -77,24 +91,29 @@ androidsdui/
 ### Dependências entre módulos
 
 ```
-              ┌─────────────────────────────┐
-              │            app              │
-              └──────────────┬──────────────┘
-          ┌───────┬──────────┼──────────┬───────────┐
-          ▼       ▼          ▼          ▼           ▼
-     domain  designsystem sdui-core sdui-runtime sdui-components
-          │                  ▲          │               │
-          └──────────────────┘          ▼               ▼
-                                    sdui-core       sdui-core
-                                                    sdui-runtime
-                                                    domain
+                    ┌──────────────────────────────────┐
+                    │               app                │
+                    └──────────────────┬───────────────┘
+         ┌──────────┬──────────────────┼───────────────────────┐
+         ▼          ▼                  ▼                       ▼
+   feature:home  core:data      core:sdui-components    core:designsystem
+         │          │   └──→ core:network        │
+         │          │              │              ▼
+         │          ▼              ▼         core:sdui-runtime
+         │      core:domain    core:model        │
+         │          │              │             ▼
+         └──────────┴──────────────┴────→  core:sdui-core
 ```
 
-- `sdui-core` não conhece Compose — pode ser reutilizado em qualquer plataforma Kotlin.
-- `sdui-runtime` conhece Compose, mas não conhece as features.
-- `domain` contém os modelos de dados e o mapeamento JSON → Node.
-- `sdui-components` reúne as implementações concretas de componentes.
-- `app` integra tudo e registra os componentes via Hilt.
+**Regras de dependência:**
+- `core:model` — sem dependências de negócio; apenas DTOs e serialização
+- `core:domain` — depende de `core:model` e `core:sdui-core`; define contratos e use cases
+- `core:data` — implementa contratos de `core:domain`; depende de `core:network`
+- `core:network` — infraestrutura HTTP pura; depende apenas de `core:model`
+- `core:sdui-core` — agnóstico de UI; pode ser reutilizado em qualquer plataforma Kotlin
+- `core:sdui-runtime` — conhece Compose, não conhece features
+- `core:sdui-components` — implementações concretas de componentes
+- `feature:home` — conhece `core:domain` e `core:sdui-core`; ignora camadas de infra
 
 ---
 
@@ -106,9 +125,26 @@ androidsdui/
 |---|---|
 | [sdui-core](docs/sdui-core.md) | Contratos, modelos de dados e registros de factories |
 | [sdui-runtime](docs/sdui-runtime.md) | Renderização Compose e registro de renderers |
-| [app](docs/app.md) | Entry point, SduiBindingsModule e fluxo completo |
+| [domain](docs/domain.md) | SduiRepository, FetchScreenUseCase, NodeMapper |
+| [app](docs/app.md) | Entry point e fluxo completo |
 | [buildSrc](docs/buildsrc.md) | Convention plugins, AppConfig e extensões Gradle |
 | [Arquitetura geral](docs/architecture.md) | Fluxo completo e diagramas de todos os módulos |
+
+---
+
+## Como rodar localmente
+
+1. Clone e inicie o mock server:
+
+```bash
+git clone https://github.com/douglaswilliamnsantana/android-sdui-mock-server
+cd android-sdui-mock-server
+npm install && npm start
+```
+
+2. Abra o projeto no Android Studio e rode no emulador.
+
+> O emulador acessa o host via `10.0.2.2:3000`. O `network_security_config.xml` já permite tráfego HTTP para esse endereço em builds de debug.
 
 ---
 
@@ -146,7 +182,6 @@ class SduiButtonFactory @Inject constructor() : ComponentFactory<SduiButtonProps
 
     override fun type() = "button"
 
-    // Uma linha — sem casts, sem parsing manual
     override fun parseProps(node: Node): SduiButtonProps =
         SduiJson.decodeFromJsonElement(node.props)
 
@@ -171,10 +206,7 @@ class SduiButtonRenderer @Inject constructor() : ComponentRenderer<SduiButton> {
 
     @Composable
     override fun Render(component: SduiButton) {
-        Button(
-            onClick = { },
-            modifier = Modifier.marginResolved(component.style.padding),
-        ) {
+        Button(onClick = { }) {
             Text(text = component.label)
         }
     }
@@ -196,7 +228,7 @@ abstract class SduiButtonModule {
 }
 ```
 
-Pronto — sem alterar nenhuma outra classe existente.
+> Certifique-se de que `core:sdui-components` (ou o módulo onde o componente vive) está declarado como dependência direta do `app/build.gradle.kts` — Hilt precisa enxergar os módulos de DI no classpath do app.
 
 ---
 
@@ -208,12 +240,7 @@ Pronto — sem alterar nenhuma outra classe existente.
   "props": {
     "text": "Hello SDUI",
     "style": {
-      "padding": {
-        "start": 24,
-        "end": 24,
-        "top": 32,
-        "bottom": 0
-      },
+      "padding": { "start": 24, "end": 24, "top": 32, "bottom": 0 },
       "color": "#1A202C",
       "fontSize": 22,
       "fontWeight": "semi-bold"
@@ -226,7 +253,7 @@ Pronto — sem alterar nenhuma outra classe existente.
 | Campo | Tipo | Descrição |
 |---|---|---|
 | `type` | `String` | Identificador do componente. Deve corresponder ao retorno de `ComponentFactory.type()` |
-| `props` | `Object` | Propriedades do componente. Desserializadas diretamente na Props class via `decodeFromJsonElement` |
+| `props` | `Object` | Propriedades do componente. Desserializadas via `decodeFromJsonElement` |
 | `components` | `Array` | Filhos do componente. Processados recursivamente pelo `ComponentRegistry` |
 
 ---
@@ -244,21 +271,19 @@ W/RendererRegistry: No renderer registered for type 'UnknownComponent'. Nothing 
 
 ## buildSrc — Convention Plugins
 
-O projeto usa `buildSrc` para centralizar toda a configuração de build. Cada módulo declara apenas o plugin e namespace:
-
 ```kotlin
-// módulo sem Compose (inclui serialization plugin automaticamente)
+// módulo sem Compose
 plugins { id("convention.android.library") }
 android("com.douglassantana.sdui_core")
 
-// módulo com Compose (inclui serialization + Compose plugins automaticamente)
+// módulo com Compose
 plugins { id("convention.android.library.compose") }
 androidCompose("com.douglassantana.sdui_components")
 ```
 
 | Plugin | Inclui |
 |---|---|
-| `convention.android.library` | Android Library + Kotlin + Serialization |
+| `convention.android.library` | Android Library + Kotlin + Serialization + KSP |
 | `convention.android.library.compose` | Android Library + Kotlin + Compose + Serialization + KSP |
 | `convention.android.application` | Android Application + Kotlin + Compose + KSP + Hilt |
 
@@ -266,7 +291,7 @@ androidCompose("com.douglassantana.sdui_components")
 
 ## SduiJson
 
-Instância compartilhada de `Json` disponível em `core:sdui-core`. Usada por todas as factories e pela desserialização inicial do JSON na `MainActivity`.
+Instância compartilhada de `Json` em `core:sdui-core`, usada por todas as factories:
 
 ```kotlin
 val SduiJson: Json = Json {
@@ -275,7 +300,6 @@ val SduiJson: Json = Json {
 }
 ```
 
-Importar de:
 ```kotlin
 import com.douglassantana.sdui_core.factory.SduiJson
 ```

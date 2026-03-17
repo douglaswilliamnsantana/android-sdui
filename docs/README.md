@@ -11,8 +11,9 @@
 | [sdui-core](sdui-core.md) | Contratos, `Node`, `UIComponent`, `ComponentRegistry`, `SDUIContext`, `SduiJson` |
 | [sdui-runtime](sdui-runtime.md) | `ComponentRenderer`, `RendererRegistry`, renderização recursiva em Compose |
 | [sdui-components](sdui-components.md) | Implementações de componentes: `SduiText` e guia para novos componentes |
-| [domain](domain.md) | `NodeDto`, `NodeMapper`, `IStyle`, `IMargin` |
-| [app](app.md) | Entry point, `SduiBindingsModule`, fluxo completo |
+| [domain](domain.md) | `SduiRepository`, `FetchScreenUseCase`, `NodeMapper` |
+| [feature/home](../feature/home/README.md) | `HomeScreen`, `HomeViewModel`, estados de UI e mock server |
+| [app](app.md) | Entry point e fluxo completo |
 | [buildSrc](buildsrc.md) | Convention plugins, `AppConfig`, extensões `android()` / `androidCompose()` |
 
 ---
