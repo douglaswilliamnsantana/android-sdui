@@ -34,5 +34,9 @@ gradlePlugin {
             id = "convention.kotlin.library"
             implementationClass = "KotlinLibraryConventionPlugin"
         }
+        register("kmpLibrary") {
+            id = "convention.kmp.library"
+            implementationClass = "KmpLibraryConventionPlugin"
+        }
     }
 }

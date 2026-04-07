@@ -1,4 +1,4 @@
-# Documentação — Android SDUI
+# Documentação — Android SDUI — KMP
 
 Índice central de toda a documentação do projeto.
 
@@ -13,7 +13,8 @@
 | [sdui-components](sdui-components.md) | Implementações de componentes: `SduiText` e guia para novos componentes |
 | [domain](domain.md) | `SduiRepository`, `FetchScreenUseCase`, `NodeMapper` |
 | [feature/home](../feature/home/README.md) | `HomeScreen`, `HomeViewModel`, estados de UI e mock server |
-| [app](app.md) | Entry point e fluxo completo |
+| [app](app.md) | Entry point Android e fluxo completo |
+| [iOS](ios.md) | Integração KMP, MVVM SwiftUI, NodeReader e renderização |
 | [buildSrc](buildsrc.md) | Convention plugins, `AppConfig`, extensões `android()` / `androidCompose()` |
 
 ---

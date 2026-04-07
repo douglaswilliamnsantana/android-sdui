@@ -1,15 +1,15 @@
 plugins {
-    id("convention.android.library")
+    id("convention.kmp.library")
 }
 
 android(namespace = "com.douglassantana.domain")
 
-dependencies {
-    implementation(project(":core:sdui-core"))
-    implementation(project(":core:model"))
-
-    implementation(libs.kotlinx.serialization.json)
-
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.android.compiler)
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation(project(":core:sdui-core"))
+            implementation(project(":core:model"))
+            implementation(libs.kotlinx.serialization.json)
+        }
+    }
 }
