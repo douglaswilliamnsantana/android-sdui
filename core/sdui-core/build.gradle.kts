@@ -1,10 +1,16 @@
 plugins {
-    id("convention.android.library")
+    id("convention.kmp.library")
 }
 
 android(namespace = "com.douglassantana.sdui_core")
 
-dependencies {
-    implementation(libs.javax.inject)
-    implementation(libs.kotlinx.serialization.json)
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation(libs.kotlinx.serialization.json)
+        }
+        androidMain.dependencies {
+            implementation(libs.javax.inject)
+        }
+    }
 }
