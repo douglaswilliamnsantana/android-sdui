@@ -1,5 +1,6 @@
 plugins {
     id("convention.kmp.library")
+    id("convention.jacoco")
 }
 
 android(namespace = "com.douglassantana.shared")
@@ -26,6 +27,12 @@ kotlin {
             api(project(":core:domain"))
             api(project(":core:network"))
             api(project(":core:data"))
+            api(libs.kotlinx.serialization.json)
+            implementation(libs.ktor.client.core)
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(libs.kotlinx.serialization.json)
         }
     }
 }
