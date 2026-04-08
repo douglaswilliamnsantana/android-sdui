@@ -38,5 +38,9 @@ gradlePlugin {
             id = "convention.kmp.library"
             implementationClass = "KmpLibraryConventionPlugin"
         }
+        register("jacoco") {
+            id = "convention.jacoco"
+            implementationClass = "JacocoConventionPlugin"
+        }
     }
 }

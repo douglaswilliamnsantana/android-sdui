@@ -6,8 +6,73 @@ on:
     - cron: '*/5 * * * *'
   issues:
     types: [edited, labeled, unlabeled, assigned, unassigned]
+  push:
+    branches: [main, kmp]
+  pull_request:
+    branches: [main]
+
 jobs:
+
+  # ─── Unit Tests ────────────────────────────────────────────────────────────
+  unit-tests:
+    name: Unit Tests
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Run unit tests
+        run: ./gradlew
+          :core:model:testDebugUnitTest
+          :core:domain:testDebugUnitTest
+          :core:sdui-core:testDebugUnitTest
+          :core:sdui-components:testDebugUnitTest
+          :core:sdui-runtime:testDebugUnitTest
+          :core:data:testDebugUnitTest
+          :shared:testDebugUnitTest
+          :feature:home:testDebugUnitTest
+          --continue
+
+      - name: Generate JaCoCo coverage report
+        if: always()
+        run: ./gradlew jacocoFullReport
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: build/reports/jacoco/full/
+          retention-days: 7
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: '**/build/reports/tests/testDebugUnitTest/'
+          retention-days: 7
+
+  # ─── Sync Status Labels ────────────────────────────────────────────────────
   sync:
+    name: Sync Status Labels
+    if: github.event_name != 'push' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       issues: write

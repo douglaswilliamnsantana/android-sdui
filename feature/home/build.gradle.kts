@@ -1,5 +1,6 @@
 plugins {
     id("convention.android.library.compose")
+    id("convention.jacoco")
 }
 
 androidCompose(namespace = "com.douglassantana.home")
@@ -17,4 +18,10 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     ksp(libs.hilt.android.compiler)
+
+    testImplementation(libs.junit)
+    testImplementation(kotlin("test"))
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.kotlinx.serialization.json)
+    testImplementation(libs.turbine)
 }

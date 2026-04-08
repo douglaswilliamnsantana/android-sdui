@@ -1,5 +1,6 @@
 plugins {
     id("convention.kmp.library")
+    id("convention.jacoco")
     id("com.google.devtools.ksp")
 }
 
@@ -15,6 +16,14 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.hilt.android)
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.ktor.client.mock)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.kotlinx.serialization.json)
         }
     }
 }
