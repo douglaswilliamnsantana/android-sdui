@@ -1,6 +1,7 @@
 plugins {
     id("convention.kmp.library")
     id("convention.jacoco")
+    id("maven-publish")
 }
 
 android(namespace = "com.douglassantana.shared")
@@ -33,6 +34,19 @@ kotlin {
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.kotlinx.serialization.json)
+        }
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/douglaswilliamnsantana/android-sdui")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
         }
     }
 }

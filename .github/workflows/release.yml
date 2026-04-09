@@ -1,0 +1,72 @@
+name: Release
+
+on:
+  workflow_run:
+    workflows: [CI/CD]
+    branches: [main]
+    types: [completed]
+
+jobs:
+
+  release:
+    name: Create Release & Publish Package
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: true
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # ── Versão ────────────────────────────────────────────────────────────
+      - name: Compute version
+        id: version
+        run: |
+          BASE=$(grep 'versionName' buildSrc/src/main/kotlin/AppConfig.kt \
+            | grep -oE '[0-9]+\.[0-9]+')
+          TAG="v${BASE}.${{ github.run_number }}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "name=Release $TAG" >> $GITHUB_OUTPUT
+
+      # ── Build APK ─────────────────────────────────────────────────────────
+      - name: Build debug APK
+        run: ./gradlew assembleDebug
+
+      - name: Rename APK
+        run: |
+          mv app/build/outputs/apk/debug/app-debug.apk \
+             app/build/outputs/apk/debug/android-sdui-${{ steps.version.outputs.tag }}.apk
+
+      # ── GitHub Release ────────────────────────────────────────────────────
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: ${{ steps.version.outputs.name }}
+          generate_release_notes: true
+          files: app/build/outputs/apk/debug/android-sdui-${{ steps.version.outputs.tag }}.apk
+
+      # ── GitHub Packages (Maven) ───────────────────────────────────────────
+      - name: Publish shared module to GitHub Packages
+        run: ./gradlew :shared:publishAllPublicationsToGitHubPackagesRepository
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
