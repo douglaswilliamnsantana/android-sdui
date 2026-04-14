@@ -1,17 +1,17 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.gradle.api.JavaVersion
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidApplication)
-    alias(libs.plugins.composeMultiplatform)
-    alias(libs.plugins.composeCompiler)
+    id("org.jetbrains.kotlin.multiplatform")
+    id("com.android.application")
+    id("org.jetbrains.compose")
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 kotlin {
     androidTarget {
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+            jvmTarget.set(JvmTarget.fromTarget(AppConfig.jvmTarget))
         }
     }
     
@@ -47,15 +47,15 @@ kotlin {
 }
 
 android {
-    namespace = "com.douglassantana.android_sdui"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    namespace = AppConfig.applicationId
+    compileSdk = AppConfig.compileSdk
 
     defaultConfig {
-        applicationId = "com.douglassantana.android_sdui"
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
+        applicationId = AppConfig.applicationId
+        minSdk = AppConfig.minSdk
+        targetSdk = AppConfig.targetSdk
+        versionCode = AppConfig.versionCode
+        versionName = AppConfig.versionName
     }
     packaging {
         resources {
@@ -68,8 +68,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.valueOf(AppConfig.javaVersion)
+        targetCompatibility = JavaVersion.valueOf(AppConfig.javaVersion)
     }
 }
 
