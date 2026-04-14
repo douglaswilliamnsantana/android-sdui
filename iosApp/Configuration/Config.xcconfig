@@ -1,0 +1,7 @@
+TEAM_ID=
+
+PRODUCT_NAME=Androidsdui
+PRODUCT_BUNDLE_IDENTIFIER=com.douglassantana.android_sdui.Androidsdui$(TEAM_ID)
+
+CURRENT_PROJECT_VERSION=1
+MARKETING_VERSION=1.0
