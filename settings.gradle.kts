@@ -29,3 +29,8 @@ dependencyResolutionManagement {
 }
 
 include(":composeApp")
+include(":core")
+include(":core:model")
+include(":sdui")
+include(":sdui:core")
+include(":sdui:runtime")

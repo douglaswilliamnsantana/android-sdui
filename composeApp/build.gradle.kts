@@ -1,20 +1,10 @@
-import org.gradle.api.JavaVersion
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
-    id("org.jetbrains.kotlin.multiplatform")
-    id("com.android.application")
-    id("org.jetbrains.compose")
-    id("org.jetbrains.kotlin.plugin.compose")
+    id("io.github.douglaswilliamnsantana.convention.kmp.application")
 }
 
+android(namespace = AppConfig.applicationId)
+
 kotlin {
-    androidTarget {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.fromTarget(AppConfig.jvmTarget))
-        }
-    }
-    
     listOf(
         iosArm64(),
         iosSimulatorArm64()
@@ -24,56 +14,29 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     sourceSets {
         androidMain.dependencies {
-            implementation(libs.compose.uiToolingPreview)
-            implementation(libs.androidx.activity.compose)
+            implementation(dependencyNotation = libs.compose.uiToolingPreview)
+            implementation(dependencyNotation = libs.androidx.activity.compose)
         }
         commonMain.dependencies {
-            implementation(libs.compose.runtime)
-            implementation(libs.compose.foundation)
-            implementation(libs.compose.material3)
-            implementation(libs.compose.ui)
-            implementation(libs.compose.components.resources)
-            implementation(libs.compose.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodelCompose)
-            implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(dependencyNotation = libs.compose.runtime)
+            implementation(dependencyNotation = libs.compose.foundation)
+            implementation(dependencyNotation = libs.compose.material3)
+            implementation(dependencyNotation = libs.compose.ui)
+            implementation(dependencyNotation = libs.compose.components.resources)
+            implementation(dependencyNotation = libs.compose.uiToolingPreview)
+            implementation(dependencyNotation = libs.androidx.lifecycle.viewmodelCompose)
+            implementation(dependencyNotation = libs.androidx.lifecycle.runtimeCompose)
+            implementation(dependencyNotation = libs.design.system)
         }
         commonTest.dependencies {
-            implementation(libs.kotlin.test)
+            implementation(dependencyNotation = libs.kotlin.test)
         }
-    }
-}
-
-android {
-    namespace = AppConfig.applicationId
-    compileSdk = AppConfig.compileSdk
-
-    defaultConfig {
-        applicationId = AppConfig.applicationId
-        minSdk = AppConfig.minSdk
-        targetSdk = AppConfig.targetSdk
-        versionCode = AppConfig.versionCode
-        versionName = AppConfig.versionName
-    }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
-    buildTypes {
-        getByName("release") {
-            isMinifyEnabled = false
-        }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.valueOf(AppConfig.javaVersion)
-        targetCompatibility = JavaVersion.valueOf(AppConfig.javaVersion)
     }
 }
 
 dependencies {
     debugImplementation(libs.compose.uiTooling)
 }
-
