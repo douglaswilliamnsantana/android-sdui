@@ -10,7 +10,7 @@ struct SduiNodeView: View {
         switch reader.type {
         case "text":
             SduiTextView(reader: reader)
-        case "column", "screen":
+        case "column":
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(Array((reader.children as! [NodeReader]).enumerated()), id: \.offset) { _, child in
                     SduiNodeView(reader: child)
@@ -22,8 +22,53 @@ struct SduiNodeView: View {
                     SduiNodeView(reader: child)
                 }
             }
+        case "screen":
+            SduiScreenView(reader: reader)
         default:
             EmptyView()
+        }
+    }
+}
+
+// MARK: - Screen component (header / body / bottom)
+
+/// Equivalente ao SduiScreen do Android: três regiões fixas — header, body, bottom —
+/// identificadas pelo `type` de cada filho no JSON, não pela posição.
+struct SduiScreenView: View {
+    let reader: NodeReader
+
+    private var slots: [NodeReader] { reader.children as! [NodeReader] }
+    private var headerSlot: NodeReader? { slots.first { $0.type == "header" } }
+    private var bodySlot: NodeReader? { slots.first { $0.type == "body" } }
+    private var bottomSlot: NodeReader? { slots.first { $0.type == "bottom" } }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            if let headerSlot {
+                SduiScreenSlotView(reader: headerSlot)
+            }
+            if let bodySlot {
+                SduiScreenSlotView(reader: bodySlot)
+                    .frame(maxHeight: .infinity)
+            }
+            if let bottomSlot {
+                SduiScreenSlotView(reader: bottomSlot)
+            }
+        }
+    }
+}
+
+/// Renderiza os filhos de um slot "header"/"body"/"bottom" — o slot em si não tem
+/// identidade visual própria, só agrupa conteúdo (equivalente a SduiHeader/SduiBody/
+/// SduiBottom no Android).
+private struct SduiScreenSlotView: View {
+    let reader: NodeReader
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            ForEach(Array((reader.children as! [NodeReader]).enumerated()), id: \.offset) { _, child in
+                SduiNodeView(reader: child)
+            }
         }
     }
 }

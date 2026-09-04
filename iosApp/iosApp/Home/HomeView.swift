@@ -32,9 +32,17 @@ struct HomeView: View {
                 .padding(spacing.s24)
 
             } else if let reader = viewModel.node {
-                ScrollView {
+                if reader.type == "screen" {
+                    // "screen" pins its own header/bottom slots and expands body to fill —
+                    // wrapping it in a ScrollView would collapse it to its intrinsic height
+                    // instead, defeating that layout.
                     SduiNodeView(reader: reader)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    ScrollView {
+                        SduiNodeView(reader: reader)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
                 }
             }
         }
