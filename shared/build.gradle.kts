@@ -30,6 +30,7 @@ kotlin {
             api(project(":core:data"))
             api(libs.kotlinx.serialization.json)
             implementation(libs.ktor.client.core)
+            implementation(libs.koin.core)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

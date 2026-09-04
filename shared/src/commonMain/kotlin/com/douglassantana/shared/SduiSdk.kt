@@ -1,25 +1,22 @@
 package com.douglassantana.shared
 
-import com.douglassantana.data.repository.SduiRepositoryImpl
 import com.douglassantana.domain.usecase.FetchScreenUseCase
-import com.douglassantana.network.client.buildHttpClient
-import com.douglassantana.sdui_core.Node
 import com.douglassantana.sdui_core.context.SDUIContext
+import org.koin.mp.KoinPlatform
 
 /**
  * Public entry-point exposed to iOS via the Shared framework.
  *
- * @param baseUrl Base URL of the SDUI API (default targets local dev server).
+ * Resolves its dependencies from the Koin graph — the same one the Android app starts
+ * from `App.kt`, via [com.douglassantana.shared.di.AppKoin.start]. Swift must call
+ * `AppKoin.shared.start()` once, before creating the first `SduiSdk()` (typically in the
+ * `@main App`'s `init`); calling `fetchScreen` before that throws immediately.
  */
-class SduiSdk(baseUrl: String) {
-
-    constructor() : this("http://localhost:3000/screens")
+class SduiSdk {
 
     val context: SDUIContext = SDUIContext()
 
-    private val httpClient = buildHttpClient()
-    private val repository = SduiRepositoryImpl(httpClient, baseUrl)
-    private val fetchScreenUseCase = FetchScreenUseCase(repository)
+    private val fetchScreenUseCase: FetchScreenUseCase = KoinPlatform.getKoin().get()
 
     /**
      * Fetches and maps an SDUI screen for the given [route].

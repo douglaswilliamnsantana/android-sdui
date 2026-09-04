@@ -74,7 +74,7 @@ Para desenvolvimento local, utilize o mock server oficial do projeto:
 | Camada | Tecnologia |
 |---|---|
 | UI | SwiftUI |
-| DI | Inicializador Swift (sem framework externo) |
+| DI | Koin 4.1.1 (grafo compartilhado com Android via `commonMain`) |
 | HTTP engine | Ktor Darwin |
 | Min SDK | iOS 16.0 |
 | Xcode | 15+ |
@@ -107,6 +107,7 @@ androidsdui/
 │   └── src/commonMain/
 │       └── SduiSdk.kt          ← entry point público para iOS
 │       └── NodeReader.kt       ← helper Swift-friendly para leitura de props
+│       └── di/AppKoin.kt       ← inicia o grafo Koin (networkModule + dataModule) no iOS
 │
 ├── feature/
 │   └── home/                   → HomeScreen + HomeViewModel (Android)

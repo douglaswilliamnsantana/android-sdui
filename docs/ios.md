@@ -32,7 +32,7 @@ iosApp (SwiftUI)
 ```
 iosApp/
 └── iosApp/
-    ├── iOSApp.swift              ← @main, aplica sduiTheme()
+    ├── iOSApp.swift              ← @main, chama AppKoin.shared.start(), aplica sduiTheme()
     ├── Home/
     │   ├── HomeViewModel.swift   ← ObservableObject, chama SduiSdk
     │   ├── HomeView.swift        ← SwiftUI View, observa HomeViewModel
@@ -51,7 +51,7 @@ O padrão é análogo ao Android. A tabela abaixo mostra a correspondência dire
 |---|---|---|
 | Estado reativo | `StateFlow` | `@Published` |
 | ViewModel | `ViewModel` (Koin `viewModelOf`) | `ObservableObject` |
-| Injeção de dependência | Koin (`by inject()` / `getAll()`) | Inicializador Swift |
+| Injeção de dependência | Koin (`by inject()` / `getAll()`) | Koin (`KoinPlatform.getKoin()`) — mesmo grafo do Android |
 | Observar na View | `collectAsState()` | `@StateObject` |
 | Lançar coroutine | `viewModelScope.launch` | `Task { await ... }` |
 | Thread da UI | automático (Compose) | `@MainActor` |
@@ -112,23 +112,50 @@ struct HomeView: View {
 
 ---
 
-## SduiSdk
+## AppKoin
 
-Entry point do framework KMP exposto ao iOS.
+Ponto de entrada Koin exposto ao iOS — inicia o mesmo grafo de dependências (`networkModule` +
+`dataModule`, ambos em `commonMain`) que o Android inicia em `App.kt`. Precisa ser chamado uma
+única vez, antes do primeiro `SduiSdk()` — na prática, no `init` do `@main App`:
 
 ```swift
-// URL default: http://localhost:3000/screens
-let sdk = SduiSdk()
+@main
+struct iOSApp: App {
+    init() {
+        AppKoin.shared.start()
+    }
+    var body: some Scene {
+        WindowGroup { HomeView().sduiTheme() }
+    }
+}
+```
 
-// URL customizada
-let sdk = SduiSdk(baseUrl: "https://minha-api.com/screens")
+Chamadas repetidas a `start()` são no-op (seguro em previews/testes). Para uma baseUrl
+customizada (staging, testes), use o overload:
+
+```swift
+AppKoin.shared.start(baseUrl: "https://minha-api.com/screens")
+```
+
+---
+
+## SduiSdk
+
+Entry point do framework KMP exposto ao iOS. Resolve suas dependências (`FetchScreenUseCase`)
+do grafo Koin iniciado por `AppKoin` — chamar `fetchScreen` antes de `AppKoin.shared.start()`
+lança uma exceção imediatamente.
+
+```swift
+let sdk = SduiSdk()
 
 // Chamada (suspend → async throws no Swift)
 let reader = try await sdk.fetchScreen(route: "/home")
-// → GET http://localhost:3000/screens/home
+// → GET http://localhost:3000/screens/home (ou a baseUrl passada a AppKoin.shared.start(baseUrl:))
 ```
 
-> **Nota:** parâmetros com valores default do Kotlin **não são exportados** para Swift. Por isso `SduiSdk` tem um construtor secundário explícito `constructor() : this("http://localhost:3000/screens")`.
+> **Nota:** parâmetros com valores default do Kotlin **não são exportados** para Swift. Por isso
+> `AppKoin` expõe dois métodos (`start()` e `start(baseUrl:)`) em vez de um único com valor
+> default — mesmo padrão já usado no `SduiSdk` original.
 
 ---
 
