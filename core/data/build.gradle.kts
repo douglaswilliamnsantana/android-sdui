@@ -1,7 +1,6 @@
 plugins {
     id("convention.kmp.library")
     id("convention.jacoco")
-    id("com.google.devtools.ksp")
 }
 
 android(namespace = "com.douglassantana.data")
@@ -13,9 +12,7 @@ kotlin {
             implementation(project(":core:model"))
             implementation(project(":core:network"))
             implementation(libs.ktor.client.core)
-        }
-        androidMain.dependencies {
-            implementation(libs.hilt.android)
+            implementation(libs.koin.core)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
@@ -26,8 +23,4 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
         }
     }
-}
-
-dependencies {
-    kspAndroid(libs.hilt.android.compiler)
 }

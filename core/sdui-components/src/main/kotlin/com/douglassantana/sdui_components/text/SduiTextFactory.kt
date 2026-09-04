@@ -6,9 +6,8 @@ import com.douglassantana.sdui_core.context.SDUIContext
 import com.douglassantana.sdui_core.factory.ComponentFactory
 import com.douglassantana.sdui_core.factory.SduiJson
 import kotlinx.serialization.json.decodeFromJsonElement
-import javax.inject.Inject
 
-class SduiTextFactory @Inject constructor() : ComponentFactory<SduiTextProps> {
+class SduiTextFactory : ComponentFactory<SduiTextProps> {
 
     override fun type() = "text"
 

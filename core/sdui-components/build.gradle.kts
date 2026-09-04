@@ -21,8 +21,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.kotlinx.serialization.json)
 
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.android.compiler)
+    implementation(libs.koin.core)
 
     testImplementation(libs.junit)
     testImplementation(kotlin("test"))

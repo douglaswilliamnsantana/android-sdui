@@ -11,10 +11,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.douglassantana.sdui_core.context.SDUIContext
 import com.douglassantana.sdui_core.registry.ComponentRegistry
 import com.douglassantana.sdui_runtime.renderer.RendererRegistry
+import org.koin.androidx.compose.koinViewModel
 
 /**
  * Tela principal da aplicação, responsável por renderizar o layout SDUI
@@ -39,7 +39,7 @@ import com.douglassantana.sdui_runtime.renderer.RendererRegistry
 fun HomeScreen(
     componentRegistry: ComponentRegistry,
     rendererRegistry: RendererRegistry,
-    viewModel: HomeViewModel = hiltViewModel(),
+    viewModel: HomeViewModel = koinViewModel(),
 ) {
     val node by viewModel.node.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()

@@ -11,8 +11,8 @@ import kotlin.reflect.KClass
  * O [RendererRegistry] usa [type]
  * para rotear o componente ao renderer correto em tempo de execução.
  *
- * As implementações devem ser registradas no módulo Hilt com `@Binds @IntoSet` para que
- * sejam descobertas automaticamente pelo [RendererRegistry].
+ * As implementações devem ser registradas em um módulo Koin com `bind ComponentRenderer::class`
+ * para que sejam descobertas automaticamente pelo [RendererRegistry] via `getAll()`.
  *
  * @param T O tipo concreto de [UIComponent] que este renderer sabe desenhar.
  *
@@ -24,8 +24,8 @@ import kotlin.reflect.KClass
  * The [RendererRegistry] uses [type]
  * to route the component to the correct renderer at runtime.
  *
- * Implementations must be registered in the Hilt module with `@Binds @IntoSet` so they are
- * automatically discovered by the [RendererRegistry].
+ * Implementations must be registered in a Koin module with `bind ComponentRenderer::class` so
+ * they are automatically discovered by the [RendererRegistry] via `getAll()`.
  *
  * @param T The concrete [UIComponent] type this renderer knows how to draw.
  */

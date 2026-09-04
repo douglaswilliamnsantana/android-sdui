@@ -4,7 +4,7 @@
 
 # Módulo: app
 
-Módulo de aplicação — entry point do projeto. Contém a inicialização do Hilt, o Design System, e a feature `home` com o primeiro componente SDUI concreto do projeto.
+Módulo de aplicação — entry point do projeto. Contém a inicialização do Koin, o Design System, e a feature `home` com o primeiro componente SDUI concreto do projeto.
 
 ---
 
@@ -13,8 +13,10 @@ Módulo de aplicação — entry point do projeto. Contém a inicialização do 
 ```
 app/
 ├── app/
-│   ├── App.kt              → Application com @HiltAndroidApp
-│   └── MainActivity.kt     → monta o grafo, cria o Node raiz, renderiza
+│   ├── App.kt              → Application que inicializa o Koin (startKoin)
+│   ├── MainActivity.kt     → resolve dependências via `by inject()`, cria o Node raiz, renderiza
+│   └── di/
+│       └── AppModules.kt   → agrega todos os módulos Koin do projeto
 │
 ├── designsystem/
 │   └── theme/
@@ -31,7 +33,7 @@ app/
         ├── renderer/
         │   └── HomeTextRenderer.kt → desenha HomeText em Compose
         └── di/
-            └── HomeSDUIModule.kt   → registra factory e renderer via Hilt
+            └── HomeSDUIModule.kt   → registra factory e renderer via Koin
 ```
 
 ---
@@ -44,35 +46,42 @@ app/
 
 ## App.kt
 
-Ponto de inicialização do Hilt. A anotação `@HiltAndroidApp` dispara a geração de código KSP e inicializa o grafo de dependências global. Deve ser declarada no `AndroidManifest.xml`:
+Ponto de inicialização do Koin. `startKoin { }` é chamado em `onCreate()` e carrega `appModules`, a lista com todos os módulos Koin do projeto. Deve ser declarada no `AndroidManifest.xml`:
 
 ```xml
 <application android:name=".app.App" ...>
 ```
 
 ```kotlin
-@HiltAndroidApp
-class App : Application()
+class App : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        startKoin {
+            androidLogger()
+            androidContext(this@App)
+            modules(appModules)
+        }
+    }
+}
 ```
 
 ---
 
 ## MainActivity.kt
 
-Recebe via `@Inject` o `ComponentRegistry` e o `RendererRegistry` — os dois registros centrais do sistema. Em `setContent`, cria o `Node` raiz (que em produção viria de uma API remota) e renderiza o componente resultante dentro do tema.
+Resolve via `by inject()` o `ComponentRegistry` e o `RendererRegistry` — os dois registros centrais do sistema. Em `setContent`, cria o `Node` raiz (que em produção viria de uma API remota) e renderiza o componente resultante dentro do tema.
 
 ```kotlin
-@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    @Inject lateinit var componentRegistry: ComponentRegistry
-    @Inject lateinit var rendererRegistry: RendererRegistry
+    private val componentRegistry: ComponentRegistry by inject()
+    private val rendererRegistry: RendererRegistry by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val component = remember {
-                val node = Node(type = "text", props = mapOf("text" to "SDUI com Hilt"))
+                val node = Node(type = "text", props = mapOf("text" to "SDUI com Koin"))
                 componentRegistry.create(node, SDUIContext())
             }
             AndroidSduiTheme {
@@ -107,7 +116,7 @@ data class HomeText(
 Lê a prop `"text"` do `Node` e instancia o `HomeText`. Se a prop estiver ausente, usa string vazia como fallback — sem crashar.
 
 ```kotlin
-class HomeTextFactory @Inject constructor() : ComponentFactory {
+class HomeTextFactory : ComponentFactory {
     override fun type() = "text"
 
     override fun create(node: Node, context: SDUIContext, children: List<UIComponent>): UIComponent {
@@ -126,7 +135,7 @@ class HomeTextFactory @Inject constructor() : ComponentFactory {
 Desenha o `HomeText` como um `Text` do Material 3. Os filhos são renderizados automaticamente pelo `RendererRegistry` após `Render` — não é necessário tratá-los aqui.
 
 ```kotlin
-class HomeTextRenderer @Inject constructor() : ComponentRenderer<HomeText> {
+class HomeTextRenderer : ComponentRenderer<HomeText> {
     override val type = HomeText::class
 
     @Composable
@@ -140,18 +149,12 @@ class HomeTextRenderer @Inject constructor() : ComponentRenderer<HomeText> {
 
 ### `HomeSDUIModule`
 
-Módulo Hilt que conecta as implementações concretas aos contratos do `sdui-core` e `sdui-runtime` via multibindings. É a única classe que precisa ser alterada ao adicionar um novo componente à feature Home.
+Módulo Koin que conecta as implementações concretas aos contratos do `sdui-core` e `sdui-runtime`, para que `ComponentRegistry` e `RendererRegistry` os descubram via `getAll()`. É a única classe que precisa ser alterada ao adicionar um novo componente à feature Home.
 
 ```kotlin
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class HomeSDUIModule {
-
-    @Binds @IntoSet
-    abstract fun bindHomeTextFactory(factory: HomeTextFactory): ComponentFactory
-
-    @Binds @IntoSet
-    abstract fun bindHomeTextRenderer(renderer: HomeTextRenderer): ComponentRenderer<*>
+val homeSDUIModule = module {
+    single { HomeTextFactory() } bind ComponentFactory::class
+    single { HomeTextRenderer() } bind ComponentRenderer::class
 }
 ```
 

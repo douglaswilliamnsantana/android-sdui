@@ -1,22 +1,33 @@
 package com.douglassantana.android_sdui.app
 
 import android.app.Application
-import dagger.hilt.android.HiltAndroidApp
+import com.douglassantana.android_sdui.app.di.appModules
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.core.context.startKoin
 
 /**
  * Classe de Application do projeto.
  *
- * A anotação [@HiltAndroidApp] dispara a geração de código do Hilt e inicializa
- * o grafo de dependências global da aplicação. Deve ser declarada no AndroidManifest.xml
- * como `android:name=".app.App"`.
+ * Inicializa o Koin e o grafo de dependências global da aplicação a partir de
+ * [appModules]. Deve ser declarada no AndroidManifest.xml como `android:name=".app.App"`.
  *
  * ---
  *
  * Application class for the project.
  *
- * The [@HiltAndroidApp] annotation triggers Hilt's code generation and initializes
- * the global dependency graph. Must be declared in AndroidManifest.xml
- * as `android:name=".app.App"`.
+ * Starts Koin and initializes the application's global dependency graph from
+ * [appModules]. Must be declared in AndroidManifest.xml as `android:name=".app.App"`.
  */
-@HiltAndroidApp
-class App : Application()
+class App : Application() {
+
+    override fun onCreate() {
+        super.onCreate()
+
+        startKoin {
+            androidLogger()
+            androidContext(this@App)
+            modules(appModules)
+        }
+    }
+}

@@ -43,14 +43,6 @@ class JacocoConventionPlugin : Plugin<Project> {
                     "**/R.class", "**/R$*.class",
                     "**/BuildConfig.*",
                     "**/Manifest*.*",
-                    // Hilt / Dagger generated
-                    "**/*_HiltModules*",
-                    "**/*_MembersInjector*",
-                    "**/*_Factory*",
-                    "**/*Module_*Provides*",
-                    "**/Hilt_*",
-                    "**/hilt_aggregated_deps/**",
-                    "**/dagger/hilt/**",
                     // KSP / kotlinx.serialization generated
                     "**/*$\$serializer*",
                     "**/*$\$delegate*",

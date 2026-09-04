@@ -57,14 +57,15 @@ Para desenvolvimento local, utilize o mock server oficial do projeto:
 | Linguagem | Kotlin 2.3.10 |
 | HTTP | Ktor 3.1.3 |
 | Serialização | kotlinx.serialization 1.8.1 |
-| Build | Gradle Kotlin DSL + KSP 2.3.6 |
+| Build | Gradle Kotlin DSL |
+| DI | Koin 4.1.1 (commonMain) |
 
 ### Android
 
 | Camada | Tecnologia |
 |---|---|
 | UI | Jetpack Compose + Material 3 |
-| DI | Hilt 2.59.2 |
+| DI | Koin 4.1.1 |
 | HTTP engine | Ktor OkHttp |
 | Min SDK | 31 · Compile SDK 36 |
 
@@ -217,14 +218,14 @@ data class SduiButton(
 #### 2. Criar `ComponentFactory` e `ComponentRenderer`
 
 ```kotlin
-class SduiButtonFactory @Inject constructor() : ComponentFactory<SduiButtonProps> {
+class SduiButtonFactory : ComponentFactory<SduiButtonProps> {
     override fun type() = "button"
     override fun parseProps(node: Node): SduiButtonProps = SduiJson.decodeFromJsonElement(node.props)
     override fun create(props: SduiButtonProps, context: SDUIContext, children: List<UIComponent>) =
         SduiButton(label = props.label, children = children)
 }
 
-class SduiButtonRenderer @Inject constructor() : ComponentRenderer<SduiButton> {
+class SduiButtonRenderer : ComponentRenderer<SduiButton> {
     override val type = SduiButton::class
     @Composable
     override fun Render(component: SduiButton) {
@@ -233,13 +234,12 @@ class SduiButtonRenderer @Inject constructor() : ComponentRenderer<SduiButton> {
 }
 ```
 
-#### 3. Registrar no módulo Hilt
+#### 3. Registrar no módulo Koin
 
 ```kotlin
-@Module @InstallIn(SingletonComponent::class)
-abstract class SduiButtonModule {
-    @Binds @IntoSet abstract fun bindFactory(f: SduiButtonFactory): ComponentFactory<out IProps>
-    @Binds @IntoSet abstract fun bindRenderer(r: SduiButtonRenderer): ComponentRenderer<*>
+val sduiButtonModule = module {
+    single { SduiButtonFactory() } bind ComponentFactory::class
+    single { SduiButtonRenderer() } bind ComponentRenderer::class
 }
 ```
 

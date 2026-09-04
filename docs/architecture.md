@@ -21,7 +21,7 @@ Visão completa do sistema — camadas, fluxos, decisões de design e diagramas 
 │                         app                             │
 │  ┌─────────────┐  ┌────────────┐  ┌──────────────────┐ │
 │  │  App + Main │  │DesignSystem│  │  feature/home    │ │
-│  │  @Hilt init │  │  Material3 │  │  Text component  │ │
+│  │  @Koin init │  │  Material3 │  │  Text component  │ │
 │  └─────────────┘  └────────────┘  └──────────────────┘ │
 └────────────────────────┬────────────────────────────────┘
                          │ depende de
@@ -51,7 +51,7 @@ Visão completa do sistema — camadas, fluxos, decisões de design e diagramas 
 
 ---
 
-## Fluxo de injeção de dependências (Hilt)
+## Fluxo de injeção de dependências (Koin)
 
 ![Fluxo de Renderização](images/diagram_sequence.png)
 
@@ -59,7 +59,7 @@ Visão completa do sistema — camadas, fluxos, decisões de design e diagramas 
 
 ## Diagrama completo de classes
 
-![Fluxo de Injeção Hilt](images/diagram_hilt.png)
+![Fluxo de Injeção de Dependências](images/diagram_hilt.png)
 
 ---
 
@@ -109,7 +109,7 @@ feature/
         └── CheckoutSDUIModule.kt   ← único ponto de registro
 ```
 
-O `ComponentRegistry` e o `RendererRegistry` recebem automaticamente os novos componentes via Hilt multibindings — **sem alterar nenhuma classe existente**.
+O `ComponentRegistry` e o `RendererRegistry` recebem automaticamente os novos componentes via `getAll()` do Koin — **sem alterar nenhuma classe existente**.
 
 ---
 

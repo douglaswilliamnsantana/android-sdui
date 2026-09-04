@@ -7,8 +7,7 @@ import com.douglassantana.designsystem.theme.AndroidSduiTheme
 import com.douglassantana.home.HomeScreen
 import com.douglassantana.sdui_core.registry.ComponentRegistry
 import com.douglassantana.sdui_runtime.renderer.RendererRegistry
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
+import org.koin.android.ext.android.inject
 
 /**
  * Ponto de entrada da aplicação.
@@ -23,14 +22,10 @@ import javax.inject.Inject
  * Responsible for initializing the theme and delegating screen
  * rendering to the [HomeScreen] composable.
  */
-@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    @Inject
-    lateinit var componentRegistry: ComponentRegistry
-
-    @Inject
-    lateinit var rendererRegistry: RendererRegistry
+    private val componentRegistry: ComponentRegistry by inject()
+    private val rendererRegistry: RendererRegistry by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

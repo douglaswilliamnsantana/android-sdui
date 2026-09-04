@@ -92,17 +92,17 @@ interface ComponentFactory {
 }
 ```
 
-Implementações são registradas no grafo Hilt com `@Binds @IntoSet` e descobertas automaticamente pelo `ComponentRegistry`.
+Implementações são registradas em um módulo Koin com `bind ComponentFactory::class` e descobertas automaticamente pelo `ComponentRegistry` via `getAll()`.
 
 ---
 
 ### `ComponentRegistry`
 
-Ponto central de resolução de factories. Recebe via Hilt multibindings o `Set<ComponentFactory>` completo e indexa por `type()`.
+Ponto central de resolução de factories. Recebe via `getAll()` do Koin a `Collection<ComponentFactory>` completa e indexa por `type()`.
 
 ```kotlin
-class ComponentRegistry @Inject constructor(
-    factories: Set<@JvmSuppressWildcards ComponentFactory>
+class ComponentRegistry(
+    factories: Collection<ComponentFactory>
 ) {
     private val factoryMap = factories.associateBy { it.type() }
 
@@ -117,6 +117,14 @@ class ComponentRegistry @Inject constructor(
 ```
 
 A resolução dos filhos é recursiva — toda a árvore de `Node` é convertida em árvore de `UIComponent` de uma só vez.
+
+O próprio `ComponentRegistry` é provido por um módulo Koin em `sdui_core.di`:
+
+```kotlin
+val sduiCoreModule = module {
+    single { ComponentRegistry(factories = getAll()) }
+}
+```
 
 ---
 

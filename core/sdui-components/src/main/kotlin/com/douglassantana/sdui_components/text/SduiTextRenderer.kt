@@ -9,9 +9,8 @@ import com.douglassantana.sdui_components.extensions.toColor
 import com.douglassantana.sdui_components.extensions.toFontStyle
 import com.douglassantana.sdui_components.extensions.toFontWeight
 import com.douglassantana.sdui_runtime.compose.ComponentRenderer
-import javax.inject.Inject
 
-class SduiTextRenderer @Inject constructor() : ComponentRenderer<SduiText> {
+class SduiTextRenderer : ComponentRenderer<SduiText> {
 
     override val type = SduiText::class
 

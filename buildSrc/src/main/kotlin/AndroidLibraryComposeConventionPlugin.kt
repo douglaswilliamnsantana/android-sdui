@@ -14,7 +14,6 @@ class AndroidLibraryComposeConventionPlugin : Plugin<Project> {
                 apply("org.jetbrains.kotlin.android")
                 apply("org.jetbrains.kotlin.plugin.compose")
                 apply("org.jetbrains.kotlin.plugin.serialization")
-                apply("com.google.devtools.ksp")
             }
 
             extensions.configure<LibraryExtension> {

@@ -31,8 +31,6 @@ tasks.register("jacocoFullReport", JacocoReport::class) {
 
     val excludes = listOf(
         "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*",
-        "**/*_HiltModules*", "**/*_MembersInjector*", "**/*_Factory*",
-        "**/*Module_*Provides*", "**/Hilt_*", "**/hilt_aggregated_deps/**",
         "**/*\$serializer*", "**/*\$DefaultImpls*",
         "**/*Test*", "**/test/**",
     )

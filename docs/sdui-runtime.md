@@ -39,22 +39,21 @@ interface ComponentRenderer<T : UIComponent> {
 
 A chave do mapa interno do `RendererRegistry` é `KClass<T>` — e não uma `String` — o que elimina erros de digitação e permite refactoring seguro com o IDE.
 
-Implementações são registradas no grafo Hilt com `@Binds @IntoSet`:
+Implementações são registradas em um módulo Koin com `bind ComponentRenderer::class`:
 
 ```kotlin
-@Binds @IntoSet
-abstract fun bindHomeTextRenderer(renderer: HomeTextRenderer): ComponentRenderer<*>
+single { HomeTextRenderer() } bind ComponentRenderer::class
 ```
 
 ---
 
 ### `RendererRegistry`
 
-Ponto central de resolução de renderers. Recebe via Hilt multibindings o `Set<ComponentRenderer<*>>` completo e indexa por `type` (KClass).
+Ponto central de resolução de renderers. Recebe via `getAll()` do Koin a `Collection<ComponentRenderer<*>>` completa e indexa por `type` (KClass).
 
 ```kotlin
-class RendererRegistry @Inject constructor(
-    renderers: Set<@JvmSuppressWildcards ComponentRenderer<*>>
+class RendererRegistry(
+    renderers: Collection<ComponentRenderer<*>>
 ) {
     private val rendererMap = renderers.associateBy { it.type }
 
@@ -74,6 +73,14 @@ class RendererRegistry @Inject constructor(
         renderer.Render(component as T)          // cast seguro: type veio de component::class
         component.children.forEach { Render(it) } // renderiza filhos recursivamente
     }
+}
+```
+
+O próprio `RendererRegistry` é provido por um módulo Koin em `sdui_runtime.di`:
+
+```kotlin
+val sduiRuntimeModule = module {
+    single { RendererRegistry(renderers = getAll()) }
 }
 ```
 
@@ -109,7 +116,7 @@ O `RendererRegistry` é responsável por renderizar os filhos de cada componente
 
 ```kotlin
 // HomeTextRenderer — não precisa chamar nada para os filhos
-class HomeTextRenderer @Inject constructor() : ComponentRenderer<HomeText> {
+class HomeTextRenderer : ComponentRenderer<HomeText> {
     override val type = HomeText::class
 
     @Composable

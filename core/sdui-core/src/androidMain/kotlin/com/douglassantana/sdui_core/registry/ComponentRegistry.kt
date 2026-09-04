@@ -7,25 +7,24 @@ import com.douglassantana.sdui_core.UIComponent
 import com.douglassantana.sdui_core.UnknownComponent
 import com.douglassantana.sdui_core.context.SDUIContext
 import com.douglassantana.sdui_core.factory.ComponentFactory
-import javax.inject.Inject
 
 /**
  * ComponentRegistry — Registro central de factories de componentes SDUI.
  *
- * PT: Recebe via injeção (Hilt multibindings) o conjunto de todas as [ComponentFactory]
- *     registradas e as organiza em um mapa indexado por [ComponentFactory.type].
+ * PT: Recebe via injeção (Koin multi-injection via getAll()) o conjunto de todas as
+ *     [ComponentFactory] registradas e as organiza em um mapa indexado por [ComponentFactory.type].
  *     Ao receber um [Node], resolve a factory correspondente e delega a criação do [UIComponent]
  *     via [ComponentFactory.build] — que orquestra parseProps() + create() internamente.
  *     Se nenhuma factory for encontrada, emite um aviso e retorna [UnknownComponent] como fallback.
  *
- * EN: Receives via injection (Hilt multibindings) the full set of registered
+ * EN: Receives via injection (Koin multi-injection via getAll()) the full set of registered
  *     [ComponentFactory] instances and organizes them in a map indexed by [ComponentFactory.type].
  *     When given a [Node], it resolves the matching factory and delegates [UIComponent] creation
  *     via [ComponentFactory.build] — which orchestrates parseProps() + create() internally.
  *     If no factory is found, emits a warning and returns [UnknownComponent] as fallback.
  */
-class ComponentRegistry @Inject constructor(
-    factories: Set<@JvmSuppressWildcards ComponentFactory<out IProps>>
+class ComponentRegistry(
+    factories: Collection<ComponentFactory<out IProps>>
 ) {
 
     private val factoryMap: Map<String, ComponentFactory<out IProps>> by lazy {

@@ -50,11 +50,11 @@ O padrão é análogo ao Android. A tabela abaixo mostra a correspondência dire
 | Conceito | Android (Kotlin) | iOS (Swift) |
 |---|---|---|
 | Estado reativo | `StateFlow` | `@Published` |
-| ViewModel | `@HiltViewModel` + `ViewModel` | `ObservableObject` |
-| Injeção de dependência | Hilt (`@Inject`) | Inicializador Swift |
+| ViewModel | `ViewModel` (Koin `viewModelOf`) | `ObservableObject` |
+| Injeção de dependência | Koin (`by inject()` / `getAll()`) | Inicializador Swift |
 | Observar na View | `collectAsState()` | `@StateObject` |
 | Lançar coroutine | `viewModelScope.launch` | `Task { await ... }` |
-| Thread da UI | automático (Hilt/Compose) | `@MainActor` |
+| Thread da UI | automático (Compose) | `@MainActor` |
 | Ciclo de vida | `init { loadScreen() }` | `init { Task { await loadScreen() } }` |
 
 ### HomeViewModel.swift
@@ -262,7 +262,7 @@ struct SduiButtonView: View {
 }
 ```
 
-> Não é necessário nenhum registro explícito (sem equivalente ao Hilt multibindings) — basta adicionar o `case` no `switch`.
+> Não é necessário nenhum registro explícito (sem equivalente ao `getAll()` do Koin) — basta adicionar o `case` no `switch`.
 
 ---
 

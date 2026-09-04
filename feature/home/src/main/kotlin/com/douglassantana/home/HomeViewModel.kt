@@ -4,11 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.douglassantana.domain.usecase.FetchScreenUseCase
 import com.douglassantana.sdui_core.Node
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * ViewModel responsável por orquestrar o carregamento da tela SDUI.
@@ -23,8 +21,7 @@ import javax.inject.Inject
  * Calls [FetchScreenUseCase] on initialization and exposes UI state
  * via [StateFlow], allowing the screen to react to loading, error, and success.
  */
-@HiltViewModel
-class HomeViewModel @Inject constructor(
+class HomeViewModel(
     private val fetchScreen: FetchScreenUseCase,
 ) : ViewModel() {
 

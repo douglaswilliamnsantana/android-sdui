@@ -4,13 +4,12 @@ import android.util.Log
 import androidx.compose.runtime.Composable
 import com.douglassantana.sdui_core.UIComponent
 import com.douglassantana.sdui_runtime.compose.ComponentRenderer
-import javax.inject.Inject
 import kotlin.reflect.KClass
 
 /**
  * Registro central de renderers de componentes SDUI.
  *
- * Recebe via injeção (Hilt multibindings) o conjunto de todos os [ComponentRenderer]
+ * Recebe via injeção (Koin multi-injection via getAll()) o conjunto de todos os [ComponentRenderer]
  * registrados no grafo e os organiza em um mapa indexado por [ComponentRenderer.type].
  *
  * Ao receber um [UIComponent], resolve o renderer correspondente pelo tipo concreto do
@@ -27,8 +26,8 @@ import kotlin.reflect.KClass
  *
  * Central registry for SDUI component renderers.
  *
- * Receives via injection (Hilt multibindings) the full set of registered [ComponentRenderer]
- * instances and organizes them in a map indexed by [ComponentRenderer.type].
+ * Receives via injection (Koin multi-injection via getAll()) the full set of registered
+ * [ComponentRenderer] instances and organizes them in a map indexed by [ComponentRenderer.type].
  *
  * When given a [UIComponent], it resolves the matching renderer by the component's concrete type
  * via [renderTyped], which captures the generic type [T] safely, avoiding unsafe casts from type erasure.
@@ -39,8 +38,8 @@ import kotlin.reflect.KClass
  * If no renderer is found for the component type, a warning is emitted via [Log.w]
  * and returns without rendering anything — without crashing the app.
  */
-class RendererRegistry @Inject constructor(
-    renderers: Set<@JvmSuppressWildcards ComponentRenderer<*>>
+class RendererRegistry(
+    renderers: Collection<ComponentRenderer<*>>
 ) {
 
     private val rendererMap =

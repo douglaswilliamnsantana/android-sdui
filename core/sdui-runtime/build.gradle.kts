@@ -17,11 +17,9 @@ android {
 dependencies {
     implementation(project(":core:sdui-core"))
 
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.android.compiler)
+    implementation(libs.koin.core)
 
     implementation(libs.androidx.core.ktx)
-    implementation(libs.javax.inject)
 
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)

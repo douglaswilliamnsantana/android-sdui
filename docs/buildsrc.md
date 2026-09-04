@@ -106,7 +106,7 @@ Dependências Compose injetadas automaticamente por `androidCompose()`:
 
 ### `convention.android.application`
 
-Para o módulo `:app`. Aplica AGP application, Kotlin Android, Compose, KSP e Hilt. Configura `compileSdk`, `minSdk`, `targetSdk`, `compileOptions` e `KotlinAndroidProjectExtension` com `jvmTarget`.
+Para o módulo `:app`. Aplica AGP application, Kotlin Android e Compose. Configura `compileSdk`, `minSdk`, `targetSdk`, `compileOptions` e `KotlinAndroidProjectExtension` com `jvmTarget`.
 
 Uso:
 ```kotlin
@@ -162,12 +162,11 @@ plugins { id("convention.kotlin.library") }
 | Android Gradle Plugin | 9.1.0 |
 | Kotlin | 2.3.10 |
 | Gradle | 9.3.1 |
-| KSP | 2.3.6 |
-| Hilt Gradle Plugin | 2.59.2 |
+| Koin | 4.1.1 |
 
 ### Notas de compatibilidade
 
-O projeto usa `android.builtInKotlin=false` e `android.newDsl=false` no `gradle.properties` para manter compatibilidade entre AGP 9.x e KSP/Hilt, que ainda não suportam o Kotlin built-in do AGP 9. Estas flags podem ser removidas quando KSP e Hilt adicionarem suporte oficial.
+O projeto usa `android.builtInKotlin=false` e `android.newDsl=false` no `gradle.properties`. Essas flags foram originalmente introduzidas para manter compatibilidade entre AGP 9.x e KSP/Hilt, que ainda não suportavam o Kotlin built-in do AGP 9. Como o projeto não usa mais KSP nem Hilt (DI agora é feita com Koin, que não requer geração de código), essas flags podem, em princípio, ser removidas — mas isso não foi validado nesta migração.
 
 ---
 

@@ -33,8 +33,8 @@
 |---|---|
 | ![Arquitetura Geral](images/diagram_architecture.png) | ![Fluxo de Renderização](images/diagram_sequence.png) |
 | **Arquitetura Geral** — [ver página](architecture.md) | **Fluxo de Renderização** — [ver página](architecture.md) |
-| ![Diagrama de Classes](images/diagram_classes.png) | ![Fluxo de Injeção Hilt](images/diagram_hilt.png) |
-| **Diagrama de Classes** — [ver página](sdui-core.md) | **Fluxo Hilt** — [ver página](architecture.md) |
+| ![Diagrama de Classes](images/diagram_classes.png) | ![Fluxo de Injeção de Dependências](images/diagram_hilt.png) |
+| **Diagrama de Classes** — [ver página](sdui-core.md) | **Fluxo de DI** — [ver página](architecture.md) |
 
 ---
 

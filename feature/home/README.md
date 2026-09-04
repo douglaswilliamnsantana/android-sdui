@@ -18,7 +18,9 @@ Módulo de feature responsável pela tela principal do app. Consome `FetchScreen
 feature/home/
 └── src/main/kotlin/com/douglassantana/home/
     ├── HomeViewModel.kt   → gerencia estado e chama o use case
-    └── HomeScreen.kt      → composable que observa o ViewModel e renderiza
+    ├── HomeScreen.kt      → composable que observa o ViewModel e renderiza
+    └── di/
+        └── HomeModule.kt  → registra o HomeViewModel no grafo Koin
 ```
 
 ---
@@ -44,10 +46,17 @@ StateFlow<Node?>
 ## HomeViewModel
 
 ```kotlin
-@HiltViewModel
-class HomeViewModel @Inject constructor(
+class HomeViewModel(
     private val fetchScreen: FetchScreenUseCase,
 ) : ViewModel()
+```
+
+Registrado em `home.di.HomeModule.kt`:
+
+```kotlin
+val homeModule = module {
+    viewModelOf(::HomeViewModel)
+}
 ```
 
 | StateFlow | Tipo | Descrição |
@@ -67,7 +76,7 @@ A rota chamada ao inicializar é `/home`. O servidor mock deve expor esse endpoi
 fun HomeScreen(
     componentRegistry: ComponentRegistry,
     rendererRegistry: RendererRegistry,
-    viewModel: HomeViewModel = hiltViewModel(),
+    viewModel: HomeViewModel = koinViewModel(),
 )
 ```
 
@@ -87,7 +96,8 @@ dependencies {
     implementation(project(":core:domain"))       // FetchScreenUseCase
     implementation(project(":core:sdui-core"))    // Node, ComponentRegistry, SDUIContext
     implementation(project(":core:sdui-runtime")) // RendererRegistry
-    implementation(libs.hilt.navigation.compose)  // hiltViewModel()
+    implementation(libs.koin.android)              // viewModelOf()
+    implementation(libs.koin.androidx.compose)     // koinViewModel()
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 }
 ```
@@ -114,7 +124,7 @@ O emulador acessa o servidor via `http://10.0.2.2:3000/screens/home`.
 
 1. Crie um módulo em `feature/<nome>/` com o plugin `convention.android.library.compose`
 2. Declare as dependências necessárias de `core:domain` e `core:sdui-*`
-3. Crie o `ViewModel` com `@HiltViewModel` injetando o use case correspondente
+3. Crie o `ViewModel` recebendo o use case correspondente no construtor e registre-o com `viewModelOf(::SeuViewModel)` em um módulo Koin
 4. Crie o composable de tela observando o `ViewModel`
 5. Adicione `implementation(project(":feature:<nome>"))` no `app/build.gradle.kts`
 
