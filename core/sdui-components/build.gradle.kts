@@ -20,6 +20,7 @@ dependencies {
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.compose.material.icons.core)
 
     implementation(libs.koin.core)
 

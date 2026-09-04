@@ -1,5 +1,7 @@
 package com.douglassantana.sdui_components.di
 
+import com.douglassantana.sdui_components.appbar.SduiAppBarFactory
+import com.douglassantana.sdui_components.appbar.SduiAppBarRenderer
 import com.douglassantana.sdui_components.screen.SduiBodyFactory
 import com.douglassantana.sdui_components.screen.SduiBottomFactory
 import com.douglassantana.sdui_components.screen.SduiHeaderFactory
@@ -22,4 +24,7 @@ val sduiComponentsModule = module {
 
     single { SduiScreenFactory() } bind ComponentFactory::class
     single { SduiScreenRenderer(rendererRegistry = inject()) } bind ComponentRenderer::class
+
+    single { SduiAppBarFactory() } bind ComponentFactory::class
+    single { SduiAppBarRenderer() } bind ComponentRenderer::class
 }

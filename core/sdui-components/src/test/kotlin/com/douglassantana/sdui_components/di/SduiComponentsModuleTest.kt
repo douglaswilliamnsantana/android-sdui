@@ -34,7 +34,10 @@ class SduiComponentsModuleTest {
         val factories = koin.getAll<ComponentFactory<*>>()
 
         assertTrue(renderers.any { it is SduiScreenRenderer })
-        assertEquals(setOf("text", "header", "body", "bottom", "screen"), factories.map { it.type() }.toSet())
+        assertEquals(
+            setOf("text", "header", "body", "bottom", "screen", "app_bar"),
+            factories.map { it.type() }.toSet(),
+        )
 
         // Resolving RendererRegistry itself triggers getAll<ComponentRenderer<*>>(), which
         // constructs SduiScreenRenderer — if its Lazy<RendererRegistry> weren't lazy, this
