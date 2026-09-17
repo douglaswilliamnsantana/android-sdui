@@ -1,6 +1,7 @@
 package com.douglassantana.sdui_components.appbar
 
 import com.douglassantana.sdui_core.Node
+import com.douglassantana.sdui_core.SduiNodeType
 import com.douglassantana.sdui_core.UIComponent
 import com.douglassantana.sdui_core.action.UIAction
 import com.douglassantana.sdui_core.context.SDUIContext
@@ -21,7 +22,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
  */
 class SduiAppBarFactory : ComponentFactory<SduiAppBarProps> {
 
-    override fun type() = "app_bar"
+    override fun type() = SduiNodeType.APP_BAR
 
     override fun parseProps(node: Node): SduiAppBarProps =
         SduiJson.decodeFromJsonElement(node.props)

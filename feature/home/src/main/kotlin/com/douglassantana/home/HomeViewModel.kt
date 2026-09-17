@@ -2,6 +2,7 @@ package com.douglassantana.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.douglassantana.domain.model.Route
 import com.douglassantana.domain.usecase.FetchScreenUseCase
 import com.douglassantana.sdui_core.Node
 import com.douglassantana.sdui_core.state.ScreenUiState
@@ -38,7 +39,7 @@ class HomeViewModel(
     private fun loadScreen() {
         viewModelScope.launch {
             _uiState.value = ScreenUiState.Loading
-            fetchScreen("/home")
+            fetchScreen(Route.Home)
                 .onSuccess { _uiState.value = ScreenUiState.Success(it) }
                 .onFailure { _uiState.value = ScreenUiState.Error(it.message) }
         }

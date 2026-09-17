@@ -1,6 +1,7 @@
 package com.douglassantana.sdui_components.screen
 
 import com.douglassantana.sdui_core.Node
+import com.douglassantana.sdui_core.SduiNodeType
 import com.douglassantana.sdui_core.UIComponent
 import com.douglassantana.sdui_core.context.SDUIContext
 import org.junit.Assert.assertEquals
@@ -16,22 +17,22 @@ class SduiScreenFactoryTest {
 
     @Test
     fun `type returns screen`() {
-        assertEquals("screen", screenFactory.type())
+        assertEquals(SduiNodeType.SCREEN, screenFactory.type())
     }
 
     @Test
     fun `header factory type returns header`() {
-        assertEquals("header", headerFactory.type())
+        assertEquals(SduiNodeType.HEADER, headerFactory.type())
     }
 
     @Test
     fun `body factory type returns body`() {
-        assertEquals("body", bodyFactory.type())
+        assertEquals(SduiNodeType.BODY, bodyFactory.type())
     }
 
     @Test
     fun `bottom factory type returns bottom`() {
-        assertEquals("bottom", bottomFactory.type())
+        assertEquals(SduiNodeType.BOTTOM, bottomFactory.type())
     }
 
     @Test

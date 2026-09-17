@@ -1,5 +1,6 @@
 package com.douglassantana.data.repository
 
+import com.douglassantana.domain.model.Route
 import com.douglassantana.model.NodeDto
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
@@ -36,7 +37,7 @@ class SduiRepositoryImplTest {
         }
 
         val repo = SduiRepositoryImpl(buildClient(engine), "http://localhost:3000/screens")
-        val result = repo.fetchScreen("/home")
+        val result = repo.fetchScreen(Route("/home"))
 
         assertTrue(result.isSuccess)
         assertEquals("screen", result.getOrThrow().type)
@@ -55,7 +56,7 @@ class SduiRepositoryImplTest {
         }
 
         val repo = SduiRepositoryImpl(buildClient(engine), "http://localhost:3000/screens")
-        repo.fetchScreen("/home")
+        repo.fetchScreen(Route("/home"))
 
         assertEquals("http://localhost:3000/screens/home", capturedUrl)
     }
@@ -70,7 +71,7 @@ class SduiRepositoryImplTest {
         }
 
         val repo = SduiRepositoryImpl(buildClient(engine), "http://localhost:3000/screens")
-        val result = repo.fetchScreen("/missing")
+        val result = repo.fetchScreen(Route("/missing"))
 
         assertTrue(result.isFailure)
     }
@@ -96,7 +97,7 @@ class SduiRepositoryImplTest {
         }
 
         val repo = SduiRepositoryImpl(buildClient(engine), "http://localhost:3000/screens")
-        val result = repo.fetchScreen("/home")
+        val result = repo.fetchScreen(Route("/home"))
 
         val node = result.getOrThrow()
         assertEquals(1, node.components.size)

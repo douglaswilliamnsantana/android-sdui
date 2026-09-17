@@ -2,6 +2,7 @@ package com.douglassantana.domain.usecase
 
 import com.douglassantana.domain.repository.SduiRepository
 import com.douglassantana.domain.mapper.NodeMapper
+import com.douglassantana.domain.model.Route
 import com.douglassantana.sdui_core.Node
 /**
  * Caso de uso responsável por buscar e transformar uma tela SDUI do servidor.
@@ -27,6 +28,6 @@ import com.douglassantana.sdui_core.Node
 class FetchScreenUseCase(
     private val repository: SduiRepository,
 ) {
-    suspend operator fun invoke(route: String): Result<Node> =
+    suspend operator fun invoke(route: Route): Result<Node> =
         repository.fetchScreen(route).map { dto -> NodeMapper.toNode(dto) }
 }

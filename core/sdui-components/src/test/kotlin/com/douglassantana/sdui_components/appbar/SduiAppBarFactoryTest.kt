@@ -1,6 +1,7 @@
 package com.douglassantana.sdui_components.appbar
 
 import com.douglassantana.sdui_core.Node
+import com.douglassantana.sdui_core.SduiNodeType
 import com.douglassantana.sdui_core.action.ActionHandler
 import com.douglassantana.sdui_core.action.UIAction
 import com.douglassantana.sdui_core.context.SDUIContext
@@ -16,7 +17,7 @@ class SduiAppBarFactoryTest {
 
     @Test
     fun `type returns app_bar`() {
-        assertEquals("app_bar", factory.type())
+        assertEquals(SduiNodeType.APP_BAR, factory.type())
     }
 
     @Test

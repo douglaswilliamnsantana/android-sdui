@@ -1,6 +1,7 @@
 package com.douglassantana.home
 
 import app.cash.turbine.test
+import com.douglassantana.domain.model.Route
 import com.douglassantana.domain.repository.SduiRepository
 import com.douglassantana.domain.usecase.FetchScreenUseCase
 import com.douglassantana.model.NodeDto
@@ -40,7 +41,7 @@ class HomeViewModelTest {
 
     private fun makeViewModel(result: Result<NodeDto>): HomeViewModel {
         val repo = object : SduiRepository {
-            override suspend fun fetchScreen(route: String) = result
+            override suspend fun fetchScreen(route: Route) = result
         }
         return HomeViewModel(FetchScreenUseCase(repo))
     }
@@ -55,7 +56,7 @@ class HomeViewModelTest {
     @Test
     fun `initial state is loading`() = runTest {
         val repo = object : SduiRepository {
-            override suspend fun fetchScreen(route: String): Result<NodeDto> {
+            override suspend fun fetchScreen(route: Route): Result<NodeDto> {
                 // never completes during this test
                 kotlinx.coroutines.awaitCancellation()
             }

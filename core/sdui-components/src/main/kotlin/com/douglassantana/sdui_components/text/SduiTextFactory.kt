@@ -1,6 +1,7 @@
 package com.douglassantana.sdui_components.text
 
 import com.douglassantana.sdui_core.Node
+import com.douglassantana.sdui_core.SduiNodeType
 import com.douglassantana.sdui_core.UIComponent
 import com.douglassantana.sdui_core.context.SDUIContext
 import com.douglassantana.sdui_core.factory.ComponentFactory
@@ -9,7 +10,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
 
 class SduiTextFactory : ComponentFactory<SduiTextProps> {
 
-    override fun type() = "text"
+    override fun type() = SduiNodeType.TEXT
 
     override fun parseProps(node: Node): SduiTextProps =
         SduiJson.decodeFromJsonElement(node.props)

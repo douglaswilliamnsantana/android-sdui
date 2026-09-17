@@ -1,5 +1,6 @@
 package com.douglassantana.domain.repository
 
+import com.douglassantana.domain.model.Route
 import com.douglassantana.model.NodeDto
 
 /**
@@ -16,5 +17,5 @@ import com.douglassantana.model.NodeDto
  * ensuring the domain does not depend on infrastructure details.
  */
 interface SduiRepository {
-    suspend fun fetchScreen(route: String): Result<NodeDto>
+    suspend fun fetchScreen(route: Route): Result<NodeDto>
 }

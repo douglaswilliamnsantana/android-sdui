@@ -1,6 +1,7 @@
 package com.douglassantana.data.repository
 
 import com.douglassantana.domain.error.SduiError
+import com.douglassantana.domain.model.Route
 import com.douglassantana.domain.repository.SduiRepository
 import com.douglassantana.model.NodeDto
 import io.ktor.client.HttpClient
@@ -14,9 +15,9 @@ class SduiRepositoryImpl(
     private val baseUrl: String,
 ) : SduiRepository {
 
-    override suspend fun fetchScreen(route: String): Result<NodeDto> =
+    override suspend fun fetchScreen(route: Route): Result<NodeDto> =
         try {
-            Result.success(httpClient.get("$baseUrl$route").body<NodeDto>())
+            Result.success(httpClient.get("$baseUrl${route.path}").body<NodeDto>())
         } catch (e: HttpRequestTimeoutException) {
             Result.failure(SduiError.Timeout(e))
         } catch (e: SerializationException) {

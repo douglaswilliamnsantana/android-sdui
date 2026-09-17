@@ -1,5 +1,6 @@
 package com.douglassantana.shared
 
+import com.douglassantana.domain.model.Route
 import com.douglassantana.domain.usecase.FetchScreenUseCase
 import com.douglassantana.sdui_core.context.SDUIContext
 import org.koin.mp.KoinPlatform
@@ -21,8 +22,11 @@ class SduiSdk {
     /**
      * Fetches and maps an SDUI screen for the given [route].
      * Annotated with [@Throws] so Swift can call it with `try await`.
+     *
+     * The public boundary stays [String] — the plain Swift-facing type — while [Route]
+     * (a Kotlin value class) is used internally, past this entry point.
      */
     @Throws(Exception::class)
     suspend fun fetchScreen(route: String): NodeReader =
-        NodeReader(fetchScreenUseCase(route).getOrThrow())
+        NodeReader(fetchScreenUseCase(Route(route)).getOrThrow())
 }

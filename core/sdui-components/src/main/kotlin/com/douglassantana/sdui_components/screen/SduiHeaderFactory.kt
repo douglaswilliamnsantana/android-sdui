@@ -1,13 +1,14 @@
 package com.douglassantana.sdui_components.screen
 
 import com.douglassantana.sdui_core.Node
+import com.douglassantana.sdui_core.SduiNodeType
 import com.douglassantana.sdui_core.UIComponent
 import com.douglassantana.sdui_core.context.SDUIContext
 import com.douglassantana.sdui_core.factory.ComponentFactory
 
 class SduiHeaderFactory : ComponentFactory<SduiScreenSlotProps> {
 
-    override fun type() = "header"
+    override fun type() = SduiNodeType.HEADER
 
     override fun parseProps(node: Node) = SduiScreenSlotProps
 

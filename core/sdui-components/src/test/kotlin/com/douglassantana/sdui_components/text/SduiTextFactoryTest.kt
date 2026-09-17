@@ -1,6 +1,7 @@
 package com.douglassantana.sdui_components.text
 
 import com.douglassantana.sdui_core.Node
+import com.douglassantana.sdui_core.SduiNodeType
 import com.douglassantana.sdui_core.context.SDUIContext
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -13,7 +14,7 @@ class SduiTextFactoryTest {
 
     @Test
     fun `type returns text`() {
-        assertEquals("text", factory.type())
+        assertEquals(SduiNodeType.TEXT, factory.type())
     }
 
     @Test

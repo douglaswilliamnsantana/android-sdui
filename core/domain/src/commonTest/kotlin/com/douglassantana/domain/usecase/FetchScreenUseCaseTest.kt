@@ -1,5 +1,6 @@
 package com.douglassantana.domain.usecase
 
+import com.douglassantana.domain.model.Route
 import com.douglassantana.domain.repository.SduiRepository
 import com.douglassantana.model.NodeDto
 import kotlinx.coroutines.test.runTest
@@ -26,7 +27,7 @@ class FetchScreenUseCaseTest {
 
     @Test
     fun `invoke returns success with mapped Node`() = runTest {
-        val result = useCase(Result.success(textDto)).invoke("/home")
+        val result = useCase(Result.success(textDto)).invoke(Route("/home"))
 
         assertTrue(result.isSuccess)
         assertEquals("text", result.getOrNull()?.type)
@@ -34,7 +35,7 @@ class FetchScreenUseCaseTest {
 
     @Test
     fun `invoke maps props from dto`() = runTest {
-        val result = useCase(Result.success(textDto)).invoke("/home")
+        val result = useCase(Result.success(textDto)).invoke(Route("/home"))
 
         assertEquals(JsonPrimitive("Hello SDUI"), result.getOrNull()?.props?.get("text"))
     }
@@ -49,7 +50,7 @@ class FetchScreenUseCaseTest {
             ),
         )
 
-        val result = useCase(Result.success(dto)).invoke("/home")
+        val result = useCase(Result.success(dto)).invoke(Route("/home"))
 
         assertEquals(2, result.getOrNull()?.children?.size)
         assertEquals("text",   result.getOrNull()?.children?.get(0)?.type)
@@ -58,7 +59,7 @@ class FetchScreenUseCaseTest {
 
     @Test
     fun `invoke returns failure on repository error`() = runTest {
-        val result = useCase(Result.failure(Exception("Network error"))).invoke("/home")
+        val result = useCase(Result.failure(Exception("Network error"))).invoke(Route("/home"))
 
         assertTrue(result.isFailure)
         assertEquals("Network error", result.exceptionOrNull()?.message)
@@ -67,15 +68,15 @@ class FetchScreenUseCaseTest {
     @Test
     fun `invoke passes route to repository`() = runTest {
         val repo = CapturingRepository(Result.success(textDto))
-        val result = FetchScreenUseCase(repo).invoke("/detail")
+        val result = FetchScreenUseCase(repo).invoke(Route("/detail"))
 
         assertTrue(result.isSuccess)
-        assertEquals("/detail", repo.capturedRoute)
+        assertEquals(Route("/detail"), repo.capturedRoute)
     }
 
     @Test
     fun `invoke propagates null message on anonymous exception`() = runTest {
-        val result = useCase(Result.failure(RuntimeException())).invoke("/home")
+        val result = useCase(Result.failure(RuntimeException())).invoke(Route("/home"))
 
         assertTrue(result.isFailure)
         assertNull(result.exceptionOrNull()?.message)
@@ -93,7 +94,7 @@ class FetchScreenUseCaseTest {
             ),
         )
 
-        val node = useCase(Result.success(dto)).invoke("/home").getOrThrow()
+        val node = useCase(Result.success(dto)).invoke(Route("/home")).getOrThrow()
 
         val row = node.children.single()
         assertEquals("row", row.type)
@@ -106,14 +107,14 @@ class FetchScreenUseCaseTest {
 private class FakeSduiRepository(
     private val result: Result<NodeDto>,
 ) : SduiRepository {
-    override suspend fun fetchScreen(route: String): Result<NodeDto> = result
+    override suspend fun fetchScreen(route: Route): Result<NodeDto> = result
 }
 
 private class CapturingRepository(
     private val result: Result<NodeDto>,
 ) : SduiRepository {
-    var capturedRoute: String? = null
-    override suspend fun fetchScreen(route: String): Result<NodeDto> {
+    var capturedRoute: Route? = null
+    override suspend fun fetchScreen(route: Route): Result<NodeDto> {
         capturedRoute = route
         return result
     }
