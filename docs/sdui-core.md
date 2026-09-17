@@ -4,7 +4,7 @@
 
 # Módulo: sdui-core
 
-Camada de contratos e modelos do sistema SDUI. Não depende de Compose, Android SDK (exceto `android.util.Log`) nem de nenhuma outra camada do projeto — pode ser reutilizado em qualquer projeto Kotlin.
+Camada de contratos e modelos do sistema SDUI. O `commonMain` não depende de Compose, Android SDK nem de nenhuma outra camada do projeto — pode ser reutilizado em qualquer projeto Kotlin Multiplatform. Só `ComponentRegistry` e sua implementação `AndroidSduiLogger` (que usa `android.util.Log`) vivem em `androidMain`; o contrato `SduiLogger` em si é comum.
 
 ---
 
@@ -33,9 +33,9 @@ Modelo de dados bruto recebido do servidor. É agnóstico a qualquer framework d
 
 ```kotlin
 data class Node(
-    val type: String,                    // "text", "button", "image"...
-    val props: Map<String, Any?> = emptyMap(),   // dados arbitrários do servidor
-    val children: List<Node> = emptyList()       // nós filhos (árvore)
+    val type: String,                            // "text", "button", "image"...
+    val props: JsonObject = JsonObject(emptyMap()), // props brutas, sem perda de tipo
+    val children: List<Node> = emptyList()          // nós filhos (árvore)
 )
 ```
 
@@ -68,7 +68,7 @@ interface UIComponent {
 
 ### `UnknownComponent`
 
-Componente de fallback criado automaticamente quando nenhuma `ComponentFactory` está registrada para o `type` do `Node`. Não é renderizado — apenas emite um aviso via `Log.w`.
+Componente de fallback criado automaticamente quando nenhuma `ComponentFactory` está registrada para o `type` do `Node`. Não é renderizado — apenas emite um aviso via `SduiLogger`.
 
 ```kotlin
 data class UnknownComponent(val type: String) : UIComponent
@@ -78,19 +78,31 @@ data class UnknownComponent(val type: String) : UIComponent
 
 ### `ComponentFactory`
 
-Interface que cada componente concreto deve implementar para ensinar o sistema a criar um `UIComponent` a partir de um `Node`.
+Interface genérica que cada componente concreto deve implementar para ensinar o sistema a criar um `UIComponent` a partir de um `Node`. `P` é o tipo de props tipadas que a implementação parseia — nunca lida com JSON bruto ou casts de `Map` diretamente.
 
 ```kotlin
-interface ComponentFactory {
+interface ComponentFactory<P : Props> {
     fun type(): String   // deve bater com Node.type vindo do servidor
 
+    fun parseProps(node: Node): P   // parseia node.props em P, sem casts
+
     fun create(
-        node: Node,
+        props: P,
         context: SDUIContext,
         children: List<UIComponent> = emptyList()
     ): UIComponent
+
+    // Orquestra parseProps() + create(). Chamado pelo ComponentRegistry;
+    // sobrescreva só se precisar de lógica de orquestração customizada.
+    fun build(
+        node: Node,
+        context: SDUIContext,
+        children: List<UIComponent> = emptyList()
+    ): UIComponent = create(parseProps(node), context, children)
 }
 ```
+
+Fluxo: `NodeDto` (Ktor) → `NodeMapper` → `Node` → `parseProps()` → `create()` → `UIComponent`.
 
 Implementações são registradas em um módulo Koin com `bind ComponentFactory::class` e descobertas automaticamente pelo `ComponentRegistry` via `getAll()`.
 
@@ -102,27 +114,33 @@ Ponto central de resolução de factories. Recebe via `getAll()` do Koin a `Coll
 
 ```kotlin
 class ComponentRegistry(
-    factories: Collection<ComponentFactory>
+    factories: Collection<ComponentFactory<out Props>>,
+    private val logger: SduiLogger,
 ) {
     private val factoryMap = factories.associateBy { it.type() }
 
     fun create(node: Node, context: SDUIContext): UIComponent {
         val resolvedChildren = node.children.map { create(it, context) }  // recursivo
 
-        return factoryMap[node.type]
-            ?.create(node, context, resolvedChildren)
-            ?: UnknownComponent(node.type)   // fallback seguro
+        val factory = factoryMap.lookupOrWarn(
+            key = node.type,
+            logger = logger,
+            tag = "ComponentRegistry",
+        ) { type -> "No factory registered for type '$type'. Falling back to UnknownComponent." }
+
+        return factory?.build(node, context, resolvedChildren) ?: UnknownComponent(node.type)   // fallback seguro
     }
 }
 ```
 
-A resolução dos filhos é recursiva — toda a árvore de `Node` é convertida em árvore de `UIComponent` de uma só vez.
+A resolução dos filhos é recursiva — toda a árvore de `Node` é convertida em árvore de `UIComponent` de uma só vez. `Map<K, V>.lookupOrWarn` é uma extension function compartilhada com `RendererRegistry` (ver [sdui-runtime](sdui-runtime.md)) para não duplicar a lógica de "buscar por chave, avisar e cair no fallback".
 
-O próprio `ComponentRegistry` é provido por um módulo Koin em `sdui_core.di`:
+O próprio `ComponentRegistry` é provido por um módulo Koin em `sdui_core.di`, junto com o `SduiLogger`:
 
 ```kotlin
 val sduiCoreModule = module {
-    single { ComponentRegistry(factories = getAll()) }
+    single<SduiLogger> { AndroidSduiLogger() }
+    single { ComponentRegistry(factories = getAll(), logger = get()) }
 }
 ```
 
@@ -135,7 +153,7 @@ Contexto propagado a todas as factories durante a criação de componentes. Func
 | Campo | Tipo | Descrição |
 |---|---|---|
 | `actionHandler` | `ActionHandler?` | Dispatcher de ações (navegação, logs etc). Nulo = ações ignoradas |
-| `locale` | `Locale` | Locale atual do dispositivo |
+| `languageTag` | `String` | BCP 47 language tag (ex: `"pt-BR"`, `"en-US"`). Padrão: `"en"` |
 | `extras` | `Map<String, Any?>` | Dados extras: userId, feature flags, parâmetros de tela |
 
 ---
@@ -181,8 +199,8 @@ sequenceDiagram
     loop Para cada filho do Node
         ComponentRegistry->>ComponentRegistry: create(childNode, context)
     end
-    ComponentRegistry->>ComponentFactory: create(node, context, resolvedChildren)
-    ComponentFactory->>SDUIContext: lê actionHandler / locale / extras
+    ComponentRegistry->>ComponentFactory: build(node, context, resolvedChildren)
+    ComponentFactory->>SDUIContext: lê actionHandler / languageTag / extras
     ComponentFactory-->>ComponentRegistry: UIComponent
     ComponentRegistry-->>App: UIComponent (árvore completa)
 ```

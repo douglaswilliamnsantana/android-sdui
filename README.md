@@ -113,7 +113,7 @@ androidsdui/
 │   └── home/                   → HomeScreen + HomeViewModel (Android)
 │
 ├── core/
-│   ├── model/                  → NodeDto, IStyle, IMargin          [KMP]
+│   ├── model/                  → NodeDto, Style, Margin            [KMP]
 │   ├── domain/                 → SduiRepository, FetchScreenUseCase [KMP]
 │   ├── data/                   → SduiRepositoryImpl, DataModule     [KMP]
 │   ├── network/                → HttpClient (Ktor), NetworkModule    [KMP]
@@ -207,7 +207,7 @@ open iosApp/iosApp.xcodeproj
 data class SduiButtonProps(
     @SerialName("label") val label: String = "",
     @SerialName("style") val style: SduiButtonStyle? = null,
-) : IProps
+) : Props
 
 data class SduiButton(
     val label: String,
@@ -216,11 +216,19 @@ data class SduiButton(
 ) : UIComponent
 ```
 
-#### 2. Criar `ComponentFactory` e `ComponentRenderer`
+#### 2. Registrar o tipo em `SduiNodeType` e criar `ComponentFactory` + `ComponentRenderer`
+
+```kotlin
+// core/sdui-core: SduiNodeType.kt
+object SduiNodeType {
+    // ...
+    const val BUTTON = "button"
+}
+```
 
 ```kotlin
 class SduiButtonFactory : ComponentFactory<SduiButtonProps> {
-    override fun type() = "button"
+    override fun type() = SduiNodeType.BUTTON
     override fun parseProps(node: Node): SduiButtonProps = SduiJson.decodeFromJsonElement(node.props)
     override fun create(props: SduiButtonProps, context: SDUIContext, children: List<UIComponent>) =
         SduiButton(label = props.label, children = children)
@@ -294,7 +302,7 @@ struct SduiButtonView: View {
 
 ## Tratamento de erros
 
-**Android:** tipos sem factory ou renderer registrados emitem `Log.w` e são silenciosamente ignorados via `UnknownComponent`.
+**Android:** tipos sem factory ou renderer registrados emitem um aviso via `SduiLogger` (injetado por Koin, implementado com `android.util.Log` em produção) e são silenciosamente ignorados via `UnknownComponent`.
 
 **iOS:** o `SduiNodeView` trata tipos desconhecidos com `EmptyView()` — sem crash, sem renderização.
 

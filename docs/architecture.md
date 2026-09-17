@@ -79,7 +79,7 @@ O `SDUIContext` pode variar por tela ou por request — por exemplo, diferentes 
 
 ### Por que `UnknownComponent` em vez de lançar exceção?
 
-SDUI recebe dados do servidor — que pode retornar tipos ainda não implementados no app, ou versões novas de tipos com nomes diferentes. Lançar exceção nesse cenário derrubaria o app por um campo desconhecido. O fallback silencioso com `Log.w` permite atualizações graduais do servidor sem forçar atualizações do app.
+SDUI recebe dados do servidor — que pode retornar tipos ainda não implementados no app, ou versões novas de tipos com nomes diferentes. Lançar exceção nesse cenário derrubaria o app por um campo desconhecido. O fallback silencioso com aviso via `SduiLogger` (abstração injetada por Koin, sem acoplar `ComponentRegistry`/`RendererRegistry` a `android.util.Log`) permite atualizações graduais do servidor sem forçar atualizações do app.
 
 ---
 

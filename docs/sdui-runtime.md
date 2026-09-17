@@ -53,7 +53,8 @@ Ponto central de resolução de renderers. Recebe via `getAll()` do Koin a `Coll
 
 ```kotlin
 class RendererRegistry(
-    renderers: Collection<ComponentRenderer<*>>
+    renderers: Collection<ComponentRenderer<*>>,
+    private val logger: SduiLogger,
 ) {
     private val rendererMap = renderers.associateBy { it.type }
 
@@ -65,22 +66,26 @@ class RendererRegistry(
     @Suppress("UNCHECKED_CAST")
     @Composable
     private fun <T : UIComponent> renderTyped(component: UIComponent, type: KClass<T>) {
-        val renderer = rendererMap[type] as? ComponentRenderer<T>
-        if (renderer == null) {
-            Log.w("RendererRegistry", "No renderer registered for type '${type.simpleName}'.")
-            return
-        }
+        val renderer = rendererMap.lookupOrWarn(
+            key = type,
+            logger = logger,
+            tag = "RendererRegistry",
+        ) { t -> "No renderer registered for type '${t.simpleName}'. Nothing will be rendered." } as? ComponentRenderer<T>
+
+        if (renderer == null) return
         renderer.Render(component as T)          // cast seguro: type veio de component::class
         component.children.forEach { Render(it) } // renderiza filhos recursivamente
     }
 }
 ```
 
+`Map<K, V>.lookupOrWarn` (definida em `sdui-core`) é a mesma extension function usada pelo `ComponentRegistry` (ver [sdui-core](sdui-core.md)) — evita duplicar a lógica de "buscar por chave, avisar via `SduiLogger` e cair no fallback" entre os dois registries.
+
 O próprio `RendererRegistry` é provido por um módulo Koin em `sdui_runtime.di`:
 
 ```kotlin
 val sduiRuntimeModule = module {
-    single { RendererRegistry(renderers = getAll()) }
+    single { RendererRegistry(renderers = getAll(), logger = get()) }
 }
 ```
 

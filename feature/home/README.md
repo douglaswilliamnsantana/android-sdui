@@ -34,12 +34,14 @@ HomeScreen
 HomeViewModel ──→ FetchScreenUseCase ──→ SduiRepository ──→ API
     │
     ▼
-StateFlow<Node?>
+StateFlow<ScreenUiState<Node>>
     │
-    ├── isLoading = true  → CircularProgressIndicator
-    ├── error != null     → mensagem de erro
-    └── node != null      → ComponentRegistry → RendererRegistry → Composable
+    ├── Loading         → CircularProgressIndicator
+    ├── Error(message)  → mensagem de erro
+    └── Success(data)   → ComponentRegistry → RendererRegistry → Composable
 ```
+
+`ScreenUiState<T>` (definida em `core:sdui-core`, `com.douglassantana.sdui_core.state`) é genérica e reutilizável por qualquer tela SDUI — não é específica da home. `message` em `Error` já vem amigável para o usuário: o `SduiRepositoryImpl` mapeia exceções técnicas (timeout, erro de serialização etc.) para `SduiError` (`core:domain`) antes de chegar ao ViewModel.
 
 ---
 
@@ -61,11 +63,9 @@ val homeModule = module {
 
 | StateFlow | Tipo | Descrição |
 |---|---|---|
-| `node` | `Node?` | Árvore de componentes retornada pelo servidor |
-| `isLoading` | `Boolean` | `true` enquanto a requisição está em andamento |
-| `error` | `String?` | Mensagem de erro caso a requisição falhe |
+| `uiState` | `ScreenUiState<Node>` | `Loading`, `Error(message)` ou `Success(data: Node)` (sealed interface em `core:sdui-core`) |
 
-A rota chamada ao inicializar é `/home`. O servidor mock deve expor esse endpoint.
+A rota chamada ao inicializar é `Route.Home` (`"/home"`, `core:domain`). O servidor mock deve expor esse endpoint.
 
 ---
 
@@ -80,11 +80,11 @@ fun HomeScreen(
 )
 ```
 
-| Estado | Comportamento |
+| Estado (`ScreenUiState<Node>`) | Comportamento |
 |---|---|
-| `isLoading` | Exibe `CircularProgressIndicator` centralizado |
-| `error` | Exibe mensagem de erro centralizada |
-| `node` disponível | Cria `UIComponent` via `ComponentRegistry` e renderiza via `RendererRegistry` |
+| `Loading` | Exibe `CircularProgressIndicator` centralizado |
+| `Error(message)` | Exibe `message` centralizado |
+| `Success(data)` | Cria `UIComponent` via `ComponentRegistry` (a partir de `data`) e renderiza via `RendererRegistry` |
 
 ---
 
