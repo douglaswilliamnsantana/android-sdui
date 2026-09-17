@@ -1,7 +1,7 @@
 package com.douglassantana.sdui_core.registry
 
-import com.douglassantana.sdui_core.IProps
 import com.douglassantana.sdui_core.Node
+import com.douglassantana.sdui_core.Props
 import com.douglassantana.sdui_core.UIComponent
 import com.douglassantana.sdui_core.UnknownComponent
 import com.douglassantana.sdui_core.context.SDUIContext
@@ -15,14 +15,14 @@ class ComponentRegistryTest {
 
     // region fakes
 
-    private data object FakeProps : IProps
+    private data object FakeProps : Props
     private data class FakeComponent(val label: String) : UIComponent
 
     private val fakeLogger = object : SduiLogger {
         override fun warn(tag: String, message: String) = Unit
     }
 
-    private fun registry(factories: Collection<ComponentFactory<out IProps>>) =
+    private fun registry(factories: Collection<ComponentFactory<out Props>>) =
         ComponentRegistry(factories, fakeLogger)
 
     private fun fakeFactory(typeName: String, label: String) =

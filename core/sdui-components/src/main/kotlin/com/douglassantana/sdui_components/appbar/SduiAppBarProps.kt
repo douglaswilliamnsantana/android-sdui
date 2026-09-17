@@ -1,6 +1,6 @@
 package com.douglassantana.sdui_components.appbar
 
-import com.douglassantana.sdui_core.IProps
+import com.douglassantana.sdui_core.Props
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -12,4 +12,4 @@ data class SduiAppBarProps(
     @SerialName("leftAction") val leftAction: String? = null,
     @SerialName("rightIcon") val rightIcon: String? = null,
     @SerialName("rightAction") val rightAction: String? = null,
-) : IProps
+) : Props

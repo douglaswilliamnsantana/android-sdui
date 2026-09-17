@@ -4,11 +4,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.douglassantana.model.style.IMargin
+import com.douglassantana.model.style.Margin
 
 @Stable
 fun Modifier.paddingResolved(
-    padding: IMargin? = IMargin(),
+    padding: Margin? = Margin(),
     start: Int = 0,
     end: Int = 0,
     top: Int = 0,

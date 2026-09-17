@@ -1,7 +1,7 @@
 package com.douglassantana.sdui_core.factory
 
-import com.douglassantana.sdui_core.IProps
 import com.douglassantana.sdui_core.Node
+import com.douglassantana.sdui_core.Props
 import com.douglassantana.sdui_core.UIComponent
 import com.douglassantana.sdui_core.context.SDUIContext
 import kotlinx.serialization.json.Json
@@ -48,7 +48,7 @@ val SduiJson: Json = Json {
  *       )
  *   }
  */
-interface ComponentFactory<P : IProps> {
+interface ComponentFactory<P : Props> {
 
     /**
      * PT: Retorna o identificador de tipo que corresponde ao [Node.type] do servidor.

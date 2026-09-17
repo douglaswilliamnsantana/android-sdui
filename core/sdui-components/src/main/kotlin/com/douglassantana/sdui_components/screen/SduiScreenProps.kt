@@ -1,6 +1,6 @@
 package com.douglassantana.sdui_components.screen
 
-import com.douglassantana.sdui_core.IProps
+import com.douglassantana.sdui_core.Props
 
 /**
  * PT: O "screen" não possui props próprias na versão inicial — todo o seu conteúdo vem
@@ -9,4 +9,4 @@ import com.douglassantana.sdui_core.IProps
  * EN: "screen" has no props of its own in this initial version — all of its content
  *     comes from the typed [SduiHeader]/[SduiBody]/[SduiBottom] children in the JSON.
  */
-data object SduiScreenProps : IProps
+data object SduiScreenProps : Props

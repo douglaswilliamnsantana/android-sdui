@@ -3,11 +3,11 @@ package com.douglassantana.model.style
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class IMarginTest {
+class MarginTest {
 
     @Test
     fun `default values are all zero`() {
-        val margin = IMargin()
+        val margin = Margin()
         assertEquals(0, margin.start)
         assertEquals(0, margin.end)
         assertEquals(0, margin.top)
@@ -16,7 +16,7 @@ class IMarginTest {
 
     @Test
     fun `custom values are preserved`() {
-        val margin = IMargin(start = 8, end = 16, top = 24, bottom = 32)
+        val margin = Margin(start = 8, end = 16, top = 24, bottom = 32)
         assertEquals(8,  margin.start)
         assertEquals(16, margin.end)
         assertEquals(24, margin.top)
@@ -25,19 +25,19 @@ class IMarginTest {
 
     @Test
     fun `equal margins are equal`() {
-        assertEquals(IMargin(4, 4, 4, 4), IMargin(4, 4, 4, 4))
+        assertEquals(Margin(4, 4, 4, 4), Margin(4, 4, 4, 4))
     }
 
     @Test
     fun `different margins are not equal`() {
-        val a = IMargin(start = 8)
-        val b = IMargin(start = 16)
+        val a = Margin(start = 8)
+        val b = Margin(start = 16)
         assert(a != b)
     }
 
     @Test
     fun `copy preserves values`() {
-        val original = IMargin(start = 8, end = 16, top = 4, bottom = 2)
+        val original = Margin(start = 8, end = 16, top = 4, bottom = 2)
         val copy = original.copy(top = 99)
         assertEquals(8,  copy.start)
         assertEquals(16, copy.end)

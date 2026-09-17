@@ -1,7 +1,7 @@
 package com.douglassantana.sdui_core.registry
 
-import com.douglassantana.sdui_core.IProps
 import com.douglassantana.sdui_core.Node
+import com.douglassantana.sdui_core.Props
 import com.douglassantana.sdui_core.UIComponent
 import com.douglassantana.sdui_core.UnknownComponent
 import com.douglassantana.sdui_core.context.SDUIContext
@@ -24,11 +24,11 @@ import com.douglassantana.sdui_core.log.SduiLogger
  *     If no factory is found, emits a warning and returns [UnknownComponent] as fallback.
  */
 class ComponentRegistry(
-    factories: Collection<ComponentFactory<out IProps>>,
+    factories: Collection<ComponentFactory<out Props>>,
     private val logger: SduiLogger,
 ) {
 
-    private val factoryMap: Map<String, ComponentFactory<out IProps>> by lazy {
+    private val factoryMap: Map<String, ComponentFactory<out Props>> by lazy {
         factories.associateBy { it.type() }
     }
 
@@ -38,14 +38,12 @@ class ComponentRegistry(
     ): UIComponent {
         val children = node.children.map { create(it, context) }
 
-        return factoryMap[node.type]
-            ?.build(node, context, children)
-            ?: run {
-                logger.warn(
-                    "ComponentRegistry",
-                    "No factory registered for type '${node.type}'. Falling back to UnknownComponent."
-                )
-                UnknownComponent(node.type)
-            }
+        val factory = factoryMap.lookupOrWarn(
+            key = node.type,
+            logger = logger,
+            tag = "ComponentRegistry",
+        ) { type -> "No factory registered for type '$type'. Falling back to UnknownComponent." }
+
+        return factory?.build(node, context, children) ?: UnknownComponent(node.type)
     }
 }

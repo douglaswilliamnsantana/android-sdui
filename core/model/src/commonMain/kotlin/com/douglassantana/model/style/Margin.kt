@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class IMargin(
+data class Margin(
     @SerialName("start") val start: Int = 0,
     @SerialName("end") val end: Int = 0,
     @SerialName("top") val top: Int = 0,

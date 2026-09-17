@@ -3,6 +3,7 @@ package com.douglassantana.sdui_runtime.renderer
 import androidx.compose.runtime.Composable
 import com.douglassantana.sdui_core.UIComponent
 import com.douglassantana.sdui_core.log.SduiLogger
+import com.douglassantana.sdui_core.registry.lookupOrWarn
 import com.douglassantana.sdui_runtime.compose.ComponentRenderer
 import kotlin.reflect.KClass
 
@@ -19,7 +20,7 @@ import kotlin.reflect.KClass
  * Após renderizar o componente pai, renderiza seus filhos recursivamente, garantindo que
  * toda a árvore de [UIComponent] seja desenhada na ordem correta.
  *
- * Se nenhum renderer for encontrado para o tipo do componente, emite um aviso via [Log.w]
+ * Se nenhum renderer for encontrado para o tipo do componente, emite um aviso via [SduiLogger]
  * e retorna sem renderizar nada — sem crashar a aplicação.
  *
  * ---
@@ -35,7 +36,7 @@ import kotlin.reflect.KClass
  * After rendering the parent component, it renders its children recursively, ensuring the
  * entire [UIComponent] tree is drawn in the correct order.
  *
- * If no renderer is found for the component type, a warning is emitted via [Log.w]
+ * If no renderer is found for the component type, a warning is emitted via [SduiLogger]
  * and returns without rendering anything — without crashing the app.
  */
 class RendererRegistry(
@@ -66,11 +67,13 @@ class RendererRegistry(
         component: UIComponent,
         type: KClass<T>
     ) {
-        val renderer = rendererMap[type] as? ComponentRenderer<T>
-        if (renderer == null) {
-            logger.warn("RendererRegistry", "No renderer registered for type '${type.simpleName}'. Nothing will be rendered.")
-            return
-        }
+        val renderer = rendererMap.lookupOrWarn(
+            key = type,
+            logger = logger,
+            tag = "RendererRegistry",
+        ) { t -> "No renderer registered for type '${t.simpleName}'. Nothing will be rendered." } as? ComponentRenderer<T>
+
+        if (renderer == null) return
         renderer.Render(component as T)
         component.children.forEach { child -> Render(child) }
     }

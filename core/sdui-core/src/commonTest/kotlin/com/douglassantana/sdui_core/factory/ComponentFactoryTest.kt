@@ -1,7 +1,7 @@
 package com.douglassantana.sdui_core.factory
 
-import com.douglassantana.sdui_core.IProps
 import com.douglassantana.sdui_core.Node
+import com.douglassantana.sdui_core.Props
 import com.douglassantana.sdui_core.UIComponent
 import com.douglassantana.sdui_core.context.SDUIContext
 import kotlin.test.Test
@@ -12,7 +12,7 @@ class ComponentFactoryTest {
 
     // region fakes
 
-    private data object FakeProps : IProps
+    private data object FakeProps : Props
     private data class FakeComponent(val label: String) : UIComponent
 
     private val factory = object : ComponentFactory<FakeProps> {

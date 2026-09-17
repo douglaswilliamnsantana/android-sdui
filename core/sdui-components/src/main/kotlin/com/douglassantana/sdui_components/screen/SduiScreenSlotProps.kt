@@ -1,6 +1,6 @@
 package com.douglassantana.sdui_components.screen
 
-import com.douglassantana.sdui_core.IProps
+import com.douglassantana.sdui_core.Props
 
 /**
  * PT: Props compartilhadas por "header", "body" e "bottom" — nenhum dos três tem
@@ -9,4 +9,4 @@ import com.douglassantana.sdui_core.IProps
  * EN: Props shared by "header", "body" and "bottom" — none of the three has its own
  *     configuration yet, they just group whatever children the server sends.
  */
-data object SduiScreenSlotProps : IProps
+data object SduiScreenSlotProps : Props
