@@ -11,15 +11,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.douglassantana.domain.model.ScreenSource
 import com.douglassantana.sdui_core.context.SDUIContext
 import com.douglassantana.sdui_core.registry.ComponentRegistry
 import com.douglassantana.sdui_core.state.ScreenUiState
 import com.douglassantana.sdui_runtime.renderer.RendererRegistry
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 /**
  * Tela principal da aplicação, responsável por renderizar o layout SDUI
- * recebido do servidor.
+ * recebido do servidor ou do Firebase Remote Config, conforme [source].
  *
  * Observa o [HomeViewModel] e exibe:
  * - Um indicador de carregamento enquanto os dados são buscados.
@@ -29,7 +32,7 @@ import org.koin.androidx.compose.koinViewModel
  * ---
  *
  * Main screen of the application, responsible for rendering the SDUI layout
- * received from the server.
+ * received from the backend or from Firebase Remote Config, depending on [source].
  *
  * Observes [HomeViewModel] and displays:
  * - A loading indicator while data is being fetched.
@@ -40,7 +43,8 @@ import org.koin.androidx.compose.koinViewModel
 fun HomeScreen(
     componentRegistry: ComponentRegistry,
     rendererRegistry: RendererRegistry,
-    viewModel: HomeViewModel = koinViewModel(),
+    source: ScreenSource,
+    viewModel: HomeViewModel = koinViewModel(parameters = { parametersOf(source) }),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -57,7 +61,7 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(text = state.message ?: "Erro desconhecido")
+                Text(text = state.message ?: stringResource(R.string.home_error_unknown))
             }
 
             is ScreenUiState.Success -> {

@@ -7,7 +7,11 @@ struct HomeView: View {
     @Environment(\.sduiColors)  private var colors
     @Environment(\.sduiSpacing) private var spacing
 
-    @StateObject private var viewModel = HomeViewModel()
+    @StateObject private var viewModel: HomeViewModel
+
+    init(source: ScreenSourceOption) {
+        _viewModel = StateObject(wrappedValue: HomeViewModel(source: source))
+    }
 
     var body: some View {
         ZStack {
@@ -50,6 +54,6 @@ struct HomeView: View {
 }
 
 #Preview {
-    HomeView()
+    HomeView(source: .backend)
         .sduiTheme()
 }

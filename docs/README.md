@@ -15,6 +15,7 @@
 | [feature/home](../feature/home/README.md) | `HomeScreen`, `HomeViewModel`, estados de UI e mock server |
 | [app](app.md) | Entry point Android e fluxo completo |
 | [iOS](ios.md) | Integração KMP, MVVM SwiftUI, NodeReader e renderização |
+| [Firebase](firebase.md) | Setup do projeto Firebase, Remote Config (Android + iOS), CLI do mock server |
 | [buildSrc](buildsrc.md) | Convention plugins, `AppConfig`, extensões `android()` / `androidCompose()` |
 
 ---

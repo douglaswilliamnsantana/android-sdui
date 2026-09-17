@@ -1,0 +1,5 @@
+<resources>
+    <string name="launcher_title">Escolha a fonte da tela SDUI</string>
+    <string name="launcher_source_backend">Backend</string>
+    <string name="launcher_source_remote_config">Firebase Remote Config</string>
+</resources>

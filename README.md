@@ -46,6 +46,8 @@ Para desenvolvimento local, utilize o mock server oficial do projeto:
 | Android Emulator | `http://10.0.2.2:3000/screens` |
 | iOS Simulator | `http://localhost:3000/screens` |
 
+Só necessário para a fonte **Backend**. Ao abrir o app, uma tela de seleção (`feature:launcher`) deixa escolher entre **Backend** (acima) e **Firebase Remote Config** (SDK nativo por plataforma, projeto real — setup em [`docs/firebase.md`](docs/firebase.md)). O mock server também tem um CLI (`npm run push-remote-config`) pra publicar telas de teste no Remote Config.
+
 ---
 
 ## Stack
@@ -96,6 +98,8 @@ androidsdui/
 │
 ├── iosApp/                     → entry point iOS (Xcode)
 │   └── iosApp/
+│       ├── Launcher/
+│       │   └── LauncherView.swift    ← escolha Backend / Remote Config (= LauncherScreen.kt)
 │       ├── Home/
 │       │   ├── HomeViewModel.swift   ← ObservableObject (= HomeViewModel.kt)
 │       │   ├── HomeView.swift        ← SwiftUI View (= HomeScreen.kt)
@@ -105,17 +109,18 @@ androidsdui/
 │
 ├── shared/                     → framework KMP exportado ao iOS
 │   └── src/commonMain/
-│       └── SduiSdk.kt          ← entry point público para iOS
+│       └── SduiSdk.kt          ← entry point público para iOS (fetchScreen / fetchScreenFromRemoteConfig)
 │       └── NodeReader.kt       ← helper Swift-friendly para leitura de props
 │       └── di/AppKoin.kt       ← inicia o grafo Koin (networkModule + dataModule) no iOS
 │
 ├── feature/
+│   ├── launcher/                → LauncherScreen: escolha Backend vs Remote Config (Android)
 │   └── home/                   → HomeScreen + HomeViewModel (Android)
 │
 ├── core/
 │   ├── model/                  → NodeDto, Style, Margin            [KMP]
-│   ├── domain/                 → SduiRepository, FetchScreenUseCase [KMP]
-│   ├── data/                   → SduiRepositoryImpl, DataModule     [KMP]
+│   ├── domain/                 → SduiRepository, FetchScreenUseCase, ScreenSource [KMP]
+│   ├── data/                   → SduiRepositoryImpl, RemoteConfigSduiRepositoryImpl, DataModule [KMP]
 │   ├── network/                → HttpClient (Ktor), NetworkModule    [KMP]
 │   ├── sdui-core/              → Node, UIComponent, ComponentFactory [KMP]
 │   ├── sdui-runtime/           → RendererRegistry, ComponentRenderer [Android]
@@ -128,22 +133,23 @@ androidsdui/
 ### Dependências entre módulos
 
 ```
-            ┌──────────────────────────────────┐
-            │               app                │
-            └──────────────────┬───────────────┘
-     ┌──────────┬──────────────┼────────────────────────┐
-     ▼          ▼              ▼                        ▼
-feature:home  core:data  core:sdui-components    core:designsystem
-     │          │   └──→ core:network        │
-     │          │              │              ▼
-     │          ▼              ▼         core:sdui-runtime
-     │      core:domain    core:model        │
-     │          │              │             ▼
-     └──────────┴──────────────┴────→  core:sdui-core
-                                            ▲
-                                        shared/
-                                     (exporta ao iOS)
+            ┌───────────────────────────────────────────────┐
+            │                       app                      │
+            └───┬──────────┬──────────────┬─────────────────┘
+     ┌──────────┤          ▼              ▼                  ▼
+     ▼          │     core:data     core:sdui-components  core:designsystem
+feature:home    │          │   └──→ core:network        │
+     │     feature:launcher│              │              ▼
+     │          │          ▼              ▼         core:sdui-runtime
+     │          └───→ core:domain    core:model        │
+     │                     │              │             ▼
+     └─────────────────────┴──────────────┴────→  core:sdui-core
+                                                       ▲
+                                                   shared/
+                                                (exporta ao iOS)
 ```
+
+`feature:launcher` só depende de `core:domain` (para `ScreenSource`) — não conhece `core:data`, `core:sdui-*` nem `feature:home`; a escolha do usuário sobe para `app`, que decide o que renderizar.
 
 ---
 
@@ -158,6 +164,7 @@ feature:home  core:data  core:sdui-components    core:designsystem
 | [domain](docs/domain.md) | SduiRepository, FetchScreenUseCase, NodeMapper |
 | [app](docs/app.md) | Entry point Android e fluxo completo |
 | [iOS](docs/ios.md) | Integração KMP, MVVM SwiftUI, NodeReader e renderização |
+| [Firebase](docs/firebase.md) | Setup do projeto, Remote Config (Android + iOS), CLI do mock server |
 | [buildSrc](docs/buildsrc.md) | Convention plugins, AppConfig e extensões Gradle |
 | [Arquitetura geral](docs/architecture.md) | Fluxo completo e diagramas de todos os módulos |
 

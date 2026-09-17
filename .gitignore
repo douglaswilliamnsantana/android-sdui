@@ -14,3 +14,12 @@
 .cxx
 local.properties
 /.kotlin
+
+# Firebase config — downloaded per-dev from the console, not a repo secret but
+# environment-specific; see docs/firebase.md for where to get your own.
+app/google-services.json
+iosApp/iosApp/GoogleService-Info.plist
+
+# Xcode-generated, not project source
+iosApp/iosApp.xcodeproj/project.xcworkspace/
+iosApp/iosApp.xcodeproj/xcuserdata/

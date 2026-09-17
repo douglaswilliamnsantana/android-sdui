@@ -15,6 +15,10 @@
 		AA000006000000000000000A /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000006000000000000000B /* HomeViewModel.swift */; };
 		AA000007000000000000000A /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000007000000000000000B /* HomeView.swift */; };
 		AA000008000000000000000A /* SduiNodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000008000000000000000B /* SduiNodeView.swift */; };
+		AA000009000000000000000A /* LauncherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000009000000000000000B /* LauncherView.swift */; };
+		FB0000000000000000000003 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = FB0000000000000000000001 /* FirebaseCore */; };
+		FB0000000000000000000004 /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = FB0000000000000000000002 /* FirebaseRemoteConfig */; };
+		FB0000000000000000000006 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = FB0000000000000000000005 /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +31,8 @@
 		AA000006000000000000000B /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		AA000007000000000000000B /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		AA000008000000000000000B /* SduiNodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SduiNodeView.swift; sourceTree = "<group>"; };
+		AA000009000000000000000B /* LauncherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherView.swift; sourceTree = "<group>"; };
+		FB0000000000000000000005 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -34,18 +40,35 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FB0000000000000000000003 /* FirebaseCore in Frameworks */,
+				FB0000000000000000000004 /* FirebaseRemoteConfig in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		AA000020000000000000000A /* root */ = {
+		AA000020000000000000000A = {
 			isa = PBXGroup;
 			children = (
 				AA000021000000000000000A /* iosApp */,
 				AA000022000000000000000A /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		AA000021000000000000000A /* iosApp */ = {
+			isa = PBXGroup;
+			children = (
+				AA000001000000000000000B /* iOSApp.swift */,
+				AA000002000000000000000B /* ContentView.swift */,
+				AA000003000000000000000B /* Assets.xcassets */,
+				FB0000000000000000000005 /* GoogleService-Info.plist */,
+				AA000024000000000000000A /* Theme */,
+				AA000025000000000000000A /* Home */,
+				AA000026000000000000000A /* Launcher */,
+				AA000023000000000000000A /* Preview Content */,
+			);
+			path = iosApp;
 			sourceTree = "<group>";
 		};
 		AA000022000000000000000A /* Products */ = {
@@ -56,17 +79,12 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		AA000021000000000000000A /* iosApp */ = {
+		AA000023000000000000000A /* Preview Content */ = {
 			isa = PBXGroup;
 			children = (
-				AA000001000000000000000B /* iOSApp.swift */,
-				AA000002000000000000000B /* ContentView.swift */,
-				AA000003000000000000000B /* Assets.xcassets */,
-				AA000024000000000000000A /* Theme */,
-				AA000025000000000000000A /* Home */,
-				AA000023000000000000000A /* Preview Content */,
+				AA000004000000000000000B /* Preview Assets.xcassets */,
 			);
-			path = iosApp;
+			path = "Preview Content";
 			sourceTree = "<group>";
 		};
 		AA000024000000000000000A /* Theme */ = {
@@ -87,12 +105,12 @@
 			path = Home;
 			sourceTree = "<group>";
 		};
-		AA000023000000000000000A /* Preview Content */ = {
+		AA000026000000000000000A /* Launcher */ = {
 			isa = PBXGroup;
 			children = (
-				AA000004000000000000000B /* Preview Assets.xcassets */,
+				AA000009000000000000000B /* LauncherView.swift */,
 			);
-			path = "Preview Content";
+			path = Launcher;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -112,6 +130,10 @@
 			dependencies = (
 			);
 			name = iosApp;
+			packageProductDependencies = (
+				FB0000000000000000000001 /* FirebaseCore */,
+				FB0000000000000000000002 /* FirebaseRemoteConfig */,
+			);
 			productName = iosApp;
 			productReference = AA000000000000000000000A /* iosApp.app */;
 			productType = "com.apple.product-type.application";
@@ -140,6 +162,9 @@
 				Base,
 			);
 			mainGroup = AA000020000000000000000A;
+			packageReferences = (
+				08DE1088305C3701006BB97D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			productRefGroup = AA000022000000000000000A /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -156,6 +181,7 @@
 			files = (
 				AA000004000000000000000A /* Preview Assets.xcassets in Resources */,
 				AA000003000000000000000A /* Assets.xcassets in Resources */,
+				FB0000000000000000000006 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -193,6 +219,7 @@
 				AA000006000000000000000A /* HomeViewModel.swift in Sources */,
 				AA000007000000000000000A /* HomeView.swift in Sources */,
 				AA000008000000000000000A /* SduiNodeView.swift in Sources */,
+				AA000009000000000000000A /* LauncherView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -335,7 +362,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.douglassantana.iosApp";
+				PRODUCT_BUNDLE_IDENTIFIER = com.douglassantana.iosApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.9;
@@ -368,7 +395,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.douglassantana.iosApp";
+				PRODUCT_BUNDLE_IDENTIFIER = com.douglassantana.iosApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.9;
@@ -379,15 +406,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		AA000051000000000000000A /* Build configuration list for PBXProject "iosApp" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				AA000070000000000000000A /* Debug */,
-				AA000071000000000000000A /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		AA000050000000000000000A /* Build configuration list for PBXNativeTarget "iosApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -397,7 +415,40 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		AA000051000000000000000A /* Build configuration list for PBXProject "iosApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA000070000000000000000A /* Debug */,
+				AA000071000000000000000A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		08DE1088305C3701006BB97D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.19.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		FB0000000000000000000001 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 08DE1088305C3701006BB97D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		FB0000000000000000000002 /* FirebaseRemoteConfig */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 08DE1088305C3701006BB97D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseRemoteConfig;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = AA000060000000000000000A /* Project object */;
 }

@@ -17,7 +17,7 @@ iosApp (SwiftUI)
     │
     └── Shared.framework  ←  compilado pelo Gradle (:shared)
             │
-            ├── SduiSdk          ← entry point: chama fetchScreen()
+            ├── SduiSdk          ← entry point: fetchScreen() (backend) / parseScreen() (Remote Config)
             ├── NodeReader       ← lê props de forma Swift-friendly
             ├── FetchScreenUseCase
             ├── SduiRepositoryImpl  (Ktor + Darwin engine)
@@ -32,7 +32,9 @@ iosApp (SwiftUI)
 ```
 iosApp/
 └── iosApp/
-    ├── iOSApp.swift              ← @main, chama AppKoin.shared.start(), aplica sduiTheme()
+    ├── iOSApp.swift              ← @main, chama AppKoin.shared.start(), hospeda RootView
+    ├── Launcher/
+    │   └── LauncherView.swift    ← escolha da fonte (Backend / Remote Config), sem estado próprio
     ├── Home/
     │   ├── HomeViewModel.swift   ← ObservableObject, chama SduiSdk
     │   ├── HomeView.swift        ← SwiftUI View, observa HomeViewModel
@@ -40,6 +42,8 @@ iosApp/
     └── Theme/
         └── SduiTheme.swift       ← bridge de tokens de design KMP → SwiftUI
 ```
+
+`RootView` (definida em `iOSApp.swift`) alterna entre `LauncherView` e `HomeView` de forma local (`@State`), espelhando o switch feito no Android por `MainActivity`. `ScreenSourceOption` (definida em `LauncherView.swift`) é um enum Swift local — não é o tipo Kotlin `ScreenSource` — pelo mesmo motivo que `HomeViewModel` nunca importa tipos sealed/genéricos do Kotlin diretamente (ver nota sobre `@Throws`/exportação mais abaixo).
 
 ---
 
@@ -67,9 +71,11 @@ final class HomeViewModel: ObservableObject {
     @Published private(set) var isLoading: Bool = true
     @Published private(set) var error: String? = nil
 
+    private let source: ScreenSourceOption
     private let sdk: SduiSdk
 
-    init(sdk: SduiSdk = SduiSdk()) {
+    init(source: ScreenSourceOption, sdk: SduiSdk = SduiSdk()) {
+        self.source = source
         self.sdk = sdk
         Task { await loadScreen() }
     }
@@ -82,7 +88,18 @@ final class HomeViewModel: ObservableObject {
         isLoading = true
         error = nil
         do {
-            node = try await sdk.fetchScreen(route: "/home")
+            switch source {
+            case .backend:
+                node = try await sdk.fetchScreen(route: "/home")
+            case .remoteConfig:
+                // Fetched directly via the native Firebase iOS SDK, not through Kotlin —
+                // "home" must stay in sync with Android's key derivation
+                // (route.path.removePrefix("/") in RemoteConfigSduiRepositoryImpl).
+                let remoteConfig = RemoteConfig.remoteConfig()
+                _ = try await remoteConfig.fetchAndActivate()
+                let json = remoteConfig.configValue(forKey: "home").stringValue
+                node = try sdk.parseScreen(json: json)
+            }
         } catch {
             self.error = error.localizedDescription
         }
@@ -91,11 +108,17 @@ final class HomeViewModel: ObservableObject {
 }
 ```
 
+O `.backend` case chama `SduiSdk.fetchScreen`, que faz toda a busca em Kotlin (Ktor). O `.remoteConfig` case é assimétrico de propósito: o Firebase iOS SDK é um Swift Package, não é facilmente cinterop-ável a partir do Kotlin/Native sem ferramental extra — então o Swift busca o Remote Config direto pelo SDK nativo e só pede pro `SduiSdk` fazer o parsing do JSON (`parseScreen`, reaproveitando `NodeMapper`/`SduiJson` do Kotlin em vez de duplicar esse parsing em Swift). No Android, as duas fontes passam pelo mesmo `FetchScreenUseCase` (ver `docs/firebase.md`), porque o SDK Android do Firebase é Kotlin puro — sem essa restrição.
+
 ### HomeView.swift
 
 ```swift
 struct HomeView: View {
-    @StateObject private var viewModel = HomeViewModel()
+    @StateObject private var viewModel: HomeViewModel
+
+    init(source: ScreenSourceOption) {
+        _viewModel = StateObject(wrappedValue: HomeViewModel(source: source))
+    }
 
     var body: some View {
         if viewModel.isLoading {
@@ -119,13 +142,25 @@ Ponto de entrada Koin exposto ao iOS — inicia o mesmo grafo de dependências (
 única vez, antes do primeiro `SduiSdk()` — na prática, no `init` do `@main App`:
 
 ```swift
+struct RootView: View {
+    @State private var source: ScreenSourceOption? = nil
+
+    var body: some View {
+        if let source {
+            HomeView(source: source)
+        } else {
+            LauncherView(onSourceSelected: { source = $0 })
+        }
+    }
+}
+
 @main
 struct iOSApp: App {
     init() {
         AppKoin.shared.start()
     }
     var body: some Scene {
-        WindowGroup { HomeView().sduiTheme() }
+        WindowGroup { RootView().sduiTheme() }
     }
 }
 ```
@@ -141,21 +176,29 @@ AppKoin.shared.start(baseUrl: "https://minha-api.com/screens")
 
 ## SduiSdk
 
-Entry point do framework KMP exposto ao iOS. Resolve suas dependências (`FetchScreenUseCase`)
-do grafo Koin iniciado por `AppKoin` — chamar `fetchScreen` antes de `AppKoin.shared.start()`
-lança uma exceção imediatamente.
+Entry point do framework KMP exposto ao iOS. `fetchScreen` resolve `FetchScreenUseCase` do
+grafo Koin iniciado por `AppKoin` — chamar antes de `AppKoin.shared.start()` lança uma
+exceção imediatamente. `parseScreen` não usa Koin nem faz I/O — é só parsing puro.
 
 ```swift
 let sdk = SduiSdk()
 
-// Chamada (suspend → async throws no Swift)
+// Backend HTTP — busca em Kotlin (Ktor)
 let reader = try await sdk.fetchScreen(route: "/home")
 // → GET http://localhost:3000/screens/home (ou a baseUrl passada a AppKoin.shared.start(baseUrl:))
+
+// Firebase Remote Config — busca em Swift (Firebase iOS SDK nativo), Kotlin só parseia
+let json = RemoteConfig.remoteConfig().configValue(forKey: "home").stringValue
+let reader = try sdk.parseScreen(json: json)
 ```
+
+`parseScreen` não é `suspend`/`async` — é síncrono (`decodeFromString` + `NodeMapper`, sem
+rede). Ver o setup completo do Firebase (projeto, `GoogleService-Info.plist`, SPM) em
+[`docs/firebase.md`](firebase.md).
 
 > **Nota:** parâmetros com valores default do Kotlin **não são exportados** para Swift. Por isso
 > `AppKoin` expõe dois métodos (`start()` e `start(baseUrl:)`) em vez de um único com valor
-> default — mesmo padrão já usado no `SduiSdk` original.
+> default.
 
 ---
 

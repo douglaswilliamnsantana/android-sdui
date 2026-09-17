@@ -28,10 +28,13 @@ feature/home/
 ## Fluxo
 
 ```
-HomeScreen
+LauncherScreen (feature:launcher) ──→ escolhe ScreenSource
     │
     ▼
-HomeViewModel ──→ FetchScreenUseCase ──→ SduiRepository ──→ API
+HomeScreen(source)
+    │
+    ▼
+HomeViewModel ──→ FetchScreenUseCase ──→ SduiRepository (Backend ou RemoteConfig) ──→ API / Remote Config
     │
     ▼
 StateFlow<ScreenUiState<Node>>
@@ -41,7 +44,9 @@ StateFlow<ScreenUiState<Node>>
     └── Success(data)   → ComponentRegistry → RendererRegistry → Composable
 ```
 
-`ScreenUiState<T>` (definida em `core:sdui-core`, `com.douglassantana.sdui_core.state`) é genérica e reutilizável por qualquer tela SDUI — não é específica da home. `message` em `Error` já vem amigável para o usuário: o `SduiRepositoryImpl` mapeia exceções técnicas (timeout, erro de serialização etc.) para `SduiError` (`core:domain`) antes de chegar ao ViewModel.
+`ScreenUiState<T>` (definida em `core:sdui-core`, `com.douglassantana.sdui_core.state`) é genérica e reutilizável por qualquer tela SDUI — não é específica da home. `message` em `Error` já vem amigável para o usuário: ambas as implementações de `SduiRepository` mapeiam exceções técnicas (timeout, erro de serialização etc.) para `SduiError` (`core:domain`) antes de chegar ao ViewModel.
+
+`ScreenSource` (`core:domain`, `Backend` ou `RemoteConfig`) decide *qual* `SduiRepository` o Koin injeta em `FetchScreenUseCase` — escolhido pelo usuário em `LauncherScreen` (módulo `feature:launcher`) e passado como parâmetro para `HomeScreen`. `HomeViewModel` nunca sabe qual fonte foi escolhida; a seleção acontece inteiramente na resolução do Koin (`di/HomeModule.kt` e `core:data/di/DataModule.kt`).
 
 ---
 
@@ -53,11 +58,13 @@ class HomeViewModel(
 ) : ViewModel()
 ```
 
-Registrado em `home.di.HomeModule.kt`:
+Registrado em `home.di.HomeModule.kt`, parametrizado por `ScreenSource`:
 
 ```kotlin
 val homeModule = module {
-    viewModelOf(::HomeViewModel)
+    viewModel { (source: ScreenSource) ->
+        HomeViewModel(fetchScreen = get { parametersOf(source) })
+    }
 }
 ```
 
@@ -76,7 +83,8 @@ A rota chamada ao inicializar é `Route.Home` (`"/home"`, `core:domain`). O serv
 fun HomeScreen(
     componentRegistry: ComponentRegistry,
     rendererRegistry: RendererRegistry,
-    viewModel: HomeViewModel = koinViewModel(),
+    source: ScreenSource,
+    viewModel: HomeViewModel = koinViewModel(parameters = { parametersOf(source) }),
 )
 ```
 
@@ -106,7 +114,7 @@ dependencies {
 
 ## Mock Server
 
-O endpoint `/home` é servido pelo mock server local:
+Só necessário quando `source = ScreenSource.Backend`. O endpoint `/home` é servido pelo mock server local:
 
 **[android-sdui-mock-server](https://github.com/douglaswilliamnsantana/android-sdui-mock-server)**
 
@@ -117,6 +125,8 @@ npm install && npm start
 ```
 
 O emulador acessa o servidor via `http://10.0.2.2:3000/screens/home`.
+
+`source = ScreenSource.RemoteConfig` não precisa do mock server rodando: busca a tela do Firebase Remote Config real. Setup e como publicar dados de teste: [`docs/firebase.md`](../../docs/firebase.md).
 
 ---
 
@@ -130,4 +140,4 @@ O emulador acessa o servidor via `http://10.0.2.2:3000/screens/home`.
 
 ---
 
-[← README do projeto](../../README.md)
+[← README do projeto](../../README.md) · [feature:launcher](../launcher/README.md)

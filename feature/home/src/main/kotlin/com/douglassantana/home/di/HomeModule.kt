@@ -1,9 +1,13 @@
 package com.douglassantana.home.di
 
+import com.douglassantana.domain.model.ScreenSource
 import com.douglassantana.home.HomeViewModel
-import org.koin.androidx.viewmodel.dsl.viewModelOf
+import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.core.parameter.parametersOf
 import org.koin.dsl.module
 
 val homeModule = module {
-    viewModelOf(::HomeViewModel)
+    viewModel { (source: ScreenSource) ->
+        HomeViewModel(fetchScreen = get { parametersOf(source) })
+    }
 }

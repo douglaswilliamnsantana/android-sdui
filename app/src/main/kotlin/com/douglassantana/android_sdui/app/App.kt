@@ -2,6 +2,7 @@ package com.douglassantana.android_sdui.app
 
 import android.app.Application
 import com.douglassantana.android_sdui.app.di.appModules
+import com.google.firebase.FirebaseApp
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -23,6 +24,10 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        // Firebase self-initializes via a merged ContentProvider before onCreate() runs;
+        // this explicit call is idempotent and just documents the dependency clearly.
+        FirebaseApp.initializeApp(this)
 
         startKoin {
             androidLogger()

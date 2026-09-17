@@ -1,6 +1,7 @@
 // Root build — aggregates JaCoCo reports from all submodules
 plugins {
     jacoco
+    alias(libs.plugins.google.services) apply false
 }
 
 val coveredModules = listOf(
