@@ -1,5 +1,5 @@
 package com.douglassantana.model.style
 
-open class IStyle {
-    open val padding: IMargin = IMargin()
+interface IStyle {
+    val padding: IMargin get() = IMargin()
 }

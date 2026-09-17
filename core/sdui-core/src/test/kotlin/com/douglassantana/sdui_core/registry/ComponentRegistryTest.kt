@@ -6,6 +6,7 @@ import com.douglassantana.sdui_core.UIComponent
 import com.douglassantana.sdui_core.UnknownComponent
 import com.douglassantana.sdui_core.context.SDUIContext
 import com.douglassantana.sdui_core.factory.ComponentFactory
+import com.douglassantana.sdui_core.log.SduiLogger
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -16,6 +17,13 @@ class ComponentRegistryTest {
 
     private data object FakeProps : IProps
     private data class FakeComponent(val label: String) : UIComponent
+
+    private val fakeLogger = object : SduiLogger {
+        override fun warn(tag: String, message: String) = Unit
+    }
+
+    private fun registry(factories: Collection<ComponentFactory<out IProps>>) =
+        ComponentRegistry(factories, fakeLogger)
 
     private fun fakeFactory(typeName: String, label: String) =
         object : ComponentFactory<FakeProps> {
@@ -32,21 +40,21 @@ class ComponentRegistryTest {
 
     @Test
     fun `create returns component from matching factory`() {
-        val registry = ComponentRegistry(setOf(fakeFactory("text", "hello")))
+        val registry = registry(setOf(fakeFactory("text", "hello")))
         val result = registry.create(Node("text"), SDUIContext())
         assertEquals(FakeComponent("hello"), result)
     }
 
     @Test
     fun `create returns UnknownComponent when no factory matches`() {
-        val registry = ComponentRegistry(emptySet())
+        val registry = registry(emptySet())
         val result = registry.create(Node("unknown"), SDUIContext())
         assertTrue(result is UnknownComponent)
     }
 
     @Test
     fun `UnknownComponent holds the unregistered type`() {
-        val registry = ComponentRegistry(emptySet())
+        val registry = registry(emptySet())
         val result = registry.create(Node("mystery"), SDUIContext()) as UnknownComponent
         assertEquals("mystery", result.type)
     }
@@ -77,7 +85,7 @@ class ComponentRegistryTest {
             }
         }
 
-        val registry = ComponentRegistry(setOf(parentFactory, childFactory))
+        val registry = registry(setOf(parentFactory, childFactory))
         val parentNode = Node("parent", children = listOf(Node("child")))
         registry.create(parentNode, SDUIContext())
 
@@ -103,7 +111,7 @@ class ComponentRegistryTest {
             }
         }
 
-        val registry = ComponentRegistry(setOf(factory))
+        val registry = registry(setOf(factory))
         registry.create(Node("text"), context)
         assertEquals("pt-BR", capturedContext?.languageTag)
     }

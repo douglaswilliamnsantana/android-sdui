@@ -1,8 +1,8 @@
 package com.douglassantana.sdui_runtime.renderer
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import com.douglassantana.sdui_core.UIComponent
+import com.douglassantana.sdui_core.log.SduiLogger
 import com.douglassantana.sdui_runtime.compose.ComponentRenderer
 import kotlin.reflect.KClass
 
@@ -39,7 +39,8 @@ import kotlin.reflect.KClass
  * and returns without rendering anything — without crashing the app.
  */
 class RendererRegistry(
-    renderers: Collection<ComponentRenderer<*>>
+    renderers: Collection<ComponentRenderer<*>>,
+    private val logger: SduiLogger,
 ) {
 
     private val rendererMap =
@@ -67,7 +68,7 @@ class RendererRegistry(
     ) {
         val renderer = rendererMap[type] as? ComponentRenderer<T>
         if (renderer == null) {
-            Log.w("RendererRegistry", "No renderer registered for type '${type.simpleName}'. Nothing will be rendered.")
+            logger.warn("RendererRegistry", "No renderer registered for type '${type.simpleName}'. Nothing will be rendered.")
             return
         }
         renderer.Render(component as T)

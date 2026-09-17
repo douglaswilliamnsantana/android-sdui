@@ -15,4 +15,4 @@ data class SduiTextStyle(
     @SerialName("fontFamily") val fontFamily: String = "inter",
     @SerialName("maxLines") val maxLines: Int = Int.MAX_VALUE,
     @SerialName("minLines") val minLines: Int = 1,
-) : IStyle()
+) : IStyle

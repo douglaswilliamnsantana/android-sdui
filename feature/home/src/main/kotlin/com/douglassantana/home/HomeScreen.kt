@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.douglassantana.sdui_core.context.SDUIContext
 import com.douglassantana.sdui_core.registry.ComponentRegistry
+import com.douglassantana.sdui_core.state.ScreenUiState
 import com.douglassantana.sdui_runtime.renderer.RendererRegistry
 import org.koin.androidx.compose.koinViewModel
 
@@ -41,29 +42,27 @@ fun HomeScreen(
     rendererRegistry: RendererRegistry,
     viewModel: HomeViewModel = koinViewModel(),
 ) {
-    val node by viewModel.node.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
-    val error by viewModel.error.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
     Surface {
-        when {
-            isLoading -> Box(
+        when (val state = uiState) {
+            is ScreenUiState.Loading -> Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,
             ) {
                 CircularProgressIndicator()
             }
 
-            error != null -> Box(
+            is ScreenUiState.Error -> Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(text = error ?: "Erro desconhecido")
+                Text(text = state.message ?: "Erro desconhecido")
             }
 
-            node != null -> {
-                val component = remember(node) {
-                    componentRegistry.create(node!!, SDUIContext())
+            is ScreenUiState.Success -> {
+                val component = remember(state.data) {
+                    componentRegistry.create(state.data, SDUIContext())
                 }
                 rendererRegistry.Render(component)
             }

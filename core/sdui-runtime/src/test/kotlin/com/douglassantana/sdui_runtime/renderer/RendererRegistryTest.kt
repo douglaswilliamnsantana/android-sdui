@@ -4,6 +4,7 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import com.douglassantana.sdui_core.UIComponent
+import com.douglassantana.sdui_core.log.SduiLogger
 import com.douglassantana.sdui_runtime.compose.ComponentRenderer
 import org.junit.Rule
 import org.junit.Test
@@ -21,6 +22,13 @@ class RendererRegistryTest {
 
     // region fakes
 
+    private val fakeLogger = object : SduiLogger {
+        override fun warn(tag: String, message: String) = Unit
+    }
+
+    private fun registry(renderers: Collection<ComponentRenderer<*>>) =
+        RendererRegistry(renderers, fakeLogger)
+
     private data class TextComponent(val value: String) : UIComponent
 
     private class TextRenderer : ComponentRenderer<TextComponent> {
@@ -36,7 +44,7 @@ class RendererRegistryTest {
 
     @Test
     fun `Render displays content from matching renderer`() {
-        val registry = RendererRegistry(setOf(TextRenderer()))
+        val registry = registry(setOf(TextRenderer()))
 
         composeTestRule.setContent {
             registry.Render(TextComponent("Hello SDUI"))
@@ -47,7 +55,7 @@ class RendererRegistryTest {
 
     @Test
     fun `Render does not crash when no renderer is registered`() {
-        val registry = RendererRegistry(emptySet())
+        val registry = registry(emptySet())
 
         composeTestRule.setContent {
             registry.Render(TextComponent("ignored"))
@@ -76,7 +84,7 @@ class RendererRegistryTest {
             }
         }
 
-        val registry = RendererRegistry(setOf(TextRenderer(), ContainerRenderer()))
+        val registry = registry(setOf(TextRenderer(), ContainerRenderer()))
         val container = ContainerComponent("parent", children = listOf(TextComponent("child")))
 
         composeTestRule.setContent {
@@ -104,7 +112,7 @@ class RendererRegistryTest {
             }
         }
 
-        val registry = RendererRegistry(setOf(ContainerRenderer()))
+        val registry = registry(setOf(ContainerRenderer()))
         val container = ContainerComponent(children = listOf(UnknownComponent("x")))
 
         composeTestRule.setContent {

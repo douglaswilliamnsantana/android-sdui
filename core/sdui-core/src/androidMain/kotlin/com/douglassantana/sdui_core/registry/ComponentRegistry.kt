@@ -1,12 +1,12 @@
 package com.douglassantana.sdui_core.registry
 
-import android.util.Log
 import com.douglassantana.sdui_core.IProps
 import com.douglassantana.sdui_core.Node
 import com.douglassantana.sdui_core.UIComponent
 import com.douglassantana.sdui_core.UnknownComponent
 import com.douglassantana.sdui_core.context.SDUIContext
 import com.douglassantana.sdui_core.factory.ComponentFactory
+import com.douglassantana.sdui_core.log.SduiLogger
 
 /**
  * ComponentRegistry — Registro central de factories de componentes SDUI.
@@ -24,7 +24,8 @@ import com.douglassantana.sdui_core.factory.ComponentFactory
  *     If no factory is found, emits a warning and returns [UnknownComponent] as fallback.
  */
 class ComponentRegistry(
-    factories: Collection<ComponentFactory<out IProps>>
+    factories: Collection<ComponentFactory<out IProps>>,
+    private val logger: SduiLogger,
 ) {
 
     private val factoryMap: Map<String, ComponentFactory<out IProps>> by lazy {
@@ -40,7 +41,7 @@ class ComponentRegistry(
         return factoryMap[node.type]
             ?.build(node, context, children)
             ?: run {
-                Log.w(
+                logger.warn(
                     "ComponentRegistry",
                     "No factory registered for type '${node.type}'. Falling back to UnknownComponent."
                 )
